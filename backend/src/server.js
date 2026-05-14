@@ -6,6 +6,7 @@ import userRoute from "./routes/userRoute.js";
 import cookieParser from "cookie-parser";
 import { protectedRoute } from "./middlewares/authMiddleware.js";
 import cors from "cors";
+import passport from "./libs/passport.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ const PORT = process.env.PORT;
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(passport.initialize());
 
 //public route
 app.use("/api/auth", authRoute);

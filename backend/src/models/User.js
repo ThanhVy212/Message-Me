@@ -2,6 +2,11 @@ import mongoose, { Schema } from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
     username: {
       type: String,
       required: true,
@@ -11,7 +16,8 @@ const userSchema = new mongoose.Schema(
     },
     hashedPassword: {
       type: String,
-      required: true,
+      default: null, //set default null to use OAuth-google
+      select: false,
     },
     email: {
       type: String,
@@ -28,7 +34,7 @@ const userSchema = new mongoose.Schema(
     avatarUrl: {
       type: String, //link CDN display image
     },
-    avatarrId: {
+    avatarId: {
       type: String, //Cloudinary public_id to delete a image
     },
     bio: {
