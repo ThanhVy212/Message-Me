@@ -22,11 +22,12 @@ api.interceptors.response.use(
     const originalResquest = err.config;
 
     if (
-      originalResquest.url.includes("/auth/sigin") ||
-      originalResquest.url.includes("/auth/sigup") ||
+      originalResquest.url.includes("/auth/signin") ||
+      originalResquest.url.includes("/auth/signup") ||
+      originalResquest.url.includes("/auth/google") ||
       originalResquest.url.includes("/auth/refresh")
     ) {
-      return Promise.reject.apply(err);
+      return Promise.reject(err);
     }
     originalResquest._retryCount = originalResquest._retryCount || 0;
 

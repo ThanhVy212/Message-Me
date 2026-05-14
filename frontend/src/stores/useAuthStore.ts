@@ -25,27 +25,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       toast.success(
         "Đăng ký thành công! Bạn sẽ được chuyển sang trang đăng nhập",
       );
-    } catch (err) {
+
+      return true;
+    } catch (err: any) {
       console.error(err);
-      toast.error("Đăng ký không thành công");
+
+      toast.error(err.response?.data?.message || "Đăng ký không thành công");
+
+      return false;
     } finally {
       set({ loading: false });
     }
   },
 
-  signIn: async (username, password) => {
+  signIn: async (username, password): Promise<boolean> => {
     try {
       set({ loading: true });
 
       const { accessToken } = await authService.signIn(username, password);
+
       get().setAccessToken(accessToken);
 
       await get().fetchMe();
 
       toast.success("Chào mừng bạn quay lại");
-    } catch (err) {
+
+      return true;
+    } catch (err: any) {
       console.error(err);
-      toast.error("Đăng nhập không thành công");
+
+      toast.error(err.response?.data?.message || "Đăng nhập không thành công");
+
+      return false;
     } finally {
       set({ loading: false });
     }

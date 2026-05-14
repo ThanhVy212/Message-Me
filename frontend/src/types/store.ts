@@ -15,9 +15,9 @@ export interface AuthState {
     email: string,
     firstName: string,
     lastName: string,
-  ) => Promise<void>;
+  ) => Promise<boolean>;
 
-  signIn: (username: string, password: string) => Promise<void>;
+  signIn: (username: string, password: string) => Promise<boolean>;
 
   signOut: () => Promise<void>;
 
