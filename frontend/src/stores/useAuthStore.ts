@@ -118,6 +118,8 @@ export const useAuthStore = create<AuthState>()(
           if (!user) {
             await fetchMe();
           }
+
+          useChatStore.getState().fetchConversations();
         } catch (err) {
           console.error(err);
           toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại");
