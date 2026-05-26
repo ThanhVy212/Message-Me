@@ -14,15 +14,26 @@ export const sendDirectMessage = async (req, res) => {
     }
 
     if (conversationId) {
-      conversation = await Conversation.findById(conversationId);
+      conversation = await Conversation.findOne({
+        _id: conversationId,
+        type: "direct",
+        "participants.userId": { $all: [senderId, recipientId] },
+      });
+    }
+
+    if (!conversation) {
+      conversation = await Conversation.findOne({
+        type: "direct",
+        "participants.userId": { $all: [senderId, recipientId] },
+      });
     }
 
     if (!conversation) {
       conversation = await Conversation.create({
         type: "direct",
         participants: [
-          { userId: senderId, joinAt: new Date() },
-          { userId: recipientId, joinAt: new Date() },
+          { userId: senderId, joinedAt: new Date() },
+          { userId: recipientId, joinedAt: new Date() },
         ],
         lastMessageAt: new Date(),
         unreadCounts: new Map(),
