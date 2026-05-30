@@ -4,11 +4,17 @@
 @custom-variant dark (&:is(.dark *));
 @config "../tailwind.config.ts";
 
+@theme {
+  /* 30% opacity — aligned with border-input/30 on inputs */
+  --color-border: hsl(var(--border) / 30%);
+  --color-sidebar-border: hsl(var(--sidebar-border) / 30%);
+}
+
 @layer base {
   :root {
     /* Base colors - soft pastels */
-    --background: 0 0% 100%; /*violet-50*/
-    --foreground: 217.2 32.6% 17.5%; /* slate-800 */
+    --background: 0 0% 100%;
+    --foreground: 217.2 32.6% 17.5%;
 
     /* Card system */
     --card: 250 100% 99%;
@@ -114,7 +120,7 @@
 
     --sidebar-accent-foreground: 240 5.9% 10%;
 
-    --sidebar-border: 220 13% 91%;
+    --sidebar-border: 210 6% 30%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
 
@@ -172,7 +178,7 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Border/Input */
-    --border: 210 6% 15%; /* #242628 */
+    --border: 210 6% 30%; /* #242628 */
     --input: 207 28% 18%; /* #22303c */
     --ring: 203 88% 53%; /* #1da1f2 */
 
@@ -225,8 +231,14 @@
     --sidebar-accent: 207 28% 18%; /* #22303c */
     --sidebar-accent-foreground: 210 17% 93%;
 
-    --sidebar-border: 210 6% 15%; /* #242628 */
+    --sidebar-border: 210 6% 30%;
     --sidebar-ring: 203 88% 53%;
+  }
+
+  *,
+  ::after,
+  ::before {
+    @apply border-border;
   }
 
   body {
@@ -241,11 +253,11 @@
   }
 
   .dark .glass {
-    @apply backdrop-blur-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20;
+    @apply backdrop-blur-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10;
   }
 
   .glass-strong {
-    @apply backdrop-blur-2xl bg-gradient-to-br from-card/90 to-card/60 border border-border/70;
+    @apply backdrop-blur-2xl bg-gradient-to-br from-card/90 to-card/60 border border-border;
   }
 
   /* Chat bubble variants */
@@ -254,7 +266,7 @@
   }
 
   .chat-bubble-received {
-    @apply bg-[hsl(var(--chat-bubble-received))] text-[hsl(var(--chat-bubble-received-foreground))] border border-border/50;
+    @apply bg-[hsl(var(--chat-bubble-received))] text-[hsl(var(--chat-bubble-received-foreground))] border border-border;
   }
 
   /* Status indicators */
