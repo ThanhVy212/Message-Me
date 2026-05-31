@@ -9,7 +9,7 @@ interface IUserAvaterProps {
 }
 
 const UserAvatar = ({ type, name, avatarUrl, className }: IUserAvaterProps) => {
-  const bgColor = !avatarUrl ? "bg-pink-300" : "";
+  const bgColor = !avatarUrl ? "bg-pink-400" : "";
   if (!name) {
     name = "Meme";
   }
