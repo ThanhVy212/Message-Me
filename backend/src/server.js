@@ -10,10 +10,10 @@ import cookieParser from "cookie-parser";
 import { protectedRoute } from "./middlewares/authMiddleware.js";
 import cors from "cors";
 import passport from "./libs/passport.js";
+import { app, server } from "./socket/index.js";
 
 dotenv.config();
 
-const app = express();
 const PORT = process.env.PORT;
 
 //middlewares
@@ -32,7 +32,7 @@ app.use("/api/messages", protectedRoute, messageRoute);
 app.use("/api/conversations", protectedRoute, conversationRoute);
 
 connectDB().then(() => {
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`server bắt đầu trên cổng ${PORT}`);
   });
 });
