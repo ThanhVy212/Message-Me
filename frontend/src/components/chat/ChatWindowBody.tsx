@@ -1,6 +1,7 @@
 import { useChatStore } from "@/stores/useChatStore";
 import ChatWelcomeScreen from "./ChatWelcomeScreen";
 import MessageItem from "./MessageItem";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const ChatWindowBody = () => {
   const {
@@ -9,10 +10,38 @@ const ChatWindowBody = () => {
     messages: allMessages,
   } = useChatStore();
 
+  const [lastMessageStatus, setLastMessageStatus] = useState<
+    "delivered" | "seen"
+  >("delivered");
+
   const messages = allMessages[activeConversationId!]?.items ?? [];
   const selectedConvo = conversations.find(
     (c) => c._id === activeConversationId,
   );
+
+  //ref
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const lastMessage = selectedConvo?.lastMessage;
+    if (!lastMessage) {
+      return;
+    }
+    const seenBy = selectedConvo?.seenBy ?? [];
+
+    setLastMessageStatus(seenBy.length > 0 ? "seen" : "delivered");
+  }, [selectedConvo]);
+
+  useLayoutEffect(() => {
+    if (!messagesEndRef.current) {
+      return;
+    }
+
+    messagesEndRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
+  }, [activeConversationId]);
 
   if (!selectedConvo) {
     return <ChatWelcomeScreen />;
@@ -36,9 +65,11 @@ const ChatWindowBody = () => {
             index={index}
             messages={messages}
             selectedConvo={selectedConvo}
-            lastMessageStatus="delivered"
+            lastMessageStatus={lastMessageStatus}
           />
         ))}
+
+        <div ref={messagesEndRef}></div>
       </div>
     </div>
   );

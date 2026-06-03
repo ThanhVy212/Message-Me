@@ -5,6 +5,7 @@ import { SidebarInset } from "../ui/sidebar";
 import ChatWindowHeader from "./ChatWindowHeader";
 import ChatWindowBody from "./ChatWindowBody";
 import MessageInput from "./MessageInput";
+import { useEffect } from "react";
 
 const ChatWindowLayout = () => {
   const {
@@ -12,10 +13,26 @@ const ChatWindowLayout = () => {
     conversations,
     messageLoading: loading,
     messages,
+    markAsSeen,
   } = useChatStore();
 
   const selectedConvo =
     conversations.find((c) => c._id === activeConversationId) ?? null;
+
+  useEffect(() => {
+    if (!selectedConvo) {
+      return;
+    }
+
+    const markSeen = async () => {
+      try {
+        await markAsSeen();
+      } catch (err) {
+        console.error("Lỗi khi markSeen", err);
+      }
+    };
+    markSeen();
+  }, [markAsSeen, selectedConvo]);
 
   if (!selectedConvo) {
     return <ChatWelcomeScreen />;
@@ -31,7 +48,9 @@ const ChatWindowLayout = () => {
       <ChatWindowHeader chat={selectedConvo} />
 
       {/* Body */}
-      <ChatWindowBody />
+      <div className="flex-1 overflow-y-auto">
+        <ChatWindowBody />
+      </div>
 
       {/* Footer */}
       <MessageInput selectedConvo={selectedConvo} />
