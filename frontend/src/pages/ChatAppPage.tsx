@@ -4,9 +4,9 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 const ChatAppPage = () => {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-svh overflow-hidden">
       <AppSidebar />
-      <SidebarInset className="flex flex-1 flex-col p-2">
+      <SidebarInset className="flex flex-1 flex-col p-2 overflow-hidden">
         <ChatWindowLayout />
       </SidebarInset>
     </SidebarProvider>

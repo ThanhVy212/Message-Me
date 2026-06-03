@@ -57,7 +57,7 @@ const ChatWindowBody = () => {
 
   return (
     <div className="p-4 bg-sidebar-accent h-full flex flex-col overflow-hidden">
-      <div className="flex flex-col overflow-y-auto overflow-x-hidden better-scrollbar">
+      <div className="flex-1 min-h-0 flex flex-col overflow-y-auto overflow-x-hidden better-scrollbar">
         {messages.map((message, index) => (
           <MessageItem
             key={message._id ?? index}
