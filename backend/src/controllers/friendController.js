@@ -20,7 +20,7 @@ export const sendFriendRequest = async (req, res) => {
     }
 
     let userA = from.toString();
-    let userB = from.toString();
+    let userB = to.toString();
 
     if (userA > userB) {
       [userA, userB] = [userB, userA];
@@ -41,10 +41,9 @@ export const sendFriendRequest = async (req, res) => {
     }
 
     if (existingRequest) {
-      return (
-        res,
-        status(400).json({ message: "Đã có lời mời kết bạn đang chờ" })
-      );
+      return res
+        .status(400)
+        .json({ message: "Đã có lời mời kết bạn đang chờ" });
     }
 
     const request = await FriendRequest.create({
