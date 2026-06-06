@@ -26,14 +26,8 @@ export const useFriendStore = create<FriendState>((set, get) => ({
       const resultMessage = await friendService.sendFriendRequest(to, message);
 
       return resultMessage;
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        console.log("Status:", err.response?.status);
-        console.log("Data:", err.response?.data);
-      }
-
-      console.error("Lỗi xảy ra khi addFriend", err);
-      return "Lỗi xảy ra khi gửi kết bạn. Hãy thử lại";
+    } catch (err: any) {
+      throw err.response?.data;
     } finally {
       set({ loading: false });
     }
