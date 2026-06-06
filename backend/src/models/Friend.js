@@ -28,7 +28,7 @@ friendSchema.pre("save", function () {
   }
 });
 
-friendSchema.index({ userA: 1, UserB: 1 }, { unique: true });
+friendSchema.index({ userA: 1, userB: 1 }, { unique: true });
 
 const Friend = mongoose.model("Friend", friendSchema);
 
