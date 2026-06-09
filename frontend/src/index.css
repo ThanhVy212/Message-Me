@@ -249,11 +249,11 @@
 /* Chat App Utility Classes */
 @layer components {
   .glass {
-    @apply bg-gradient-to-br from-violet-200/10 to-pink-100/5 border-violet-300/30;
+    @apply border border-violet-300/30 bg-gradient-to-br from-violet-200/10 to-pink-100/5;
   }
 
   .dark .glass {
-    @apply backdrop-blur-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10;
+    @apply border border-white/10 backdrop-blur-xl bg-gradient-to-br from-white/5 to-white/[0.02];
   }
 
   .glass-strong {

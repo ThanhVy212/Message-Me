@@ -33,10 +33,10 @@ const MessageItem = ({
   );
 
   return (
-    <>
+    <div className="flex flex-col w-full">
       {/* time */}
       {isGroupBreak && (
-        <span className="flex justify-center text-xs text-muted-foreground px-1">
+        <span className="flex justify-center text-xs text-muted-foreground px-1 my-2">
           {formatMessageTime(new Date(message.createdAt))}
         </span>
       )}
@@ -96,7 +96,7 @@ const MessageItem = ({
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

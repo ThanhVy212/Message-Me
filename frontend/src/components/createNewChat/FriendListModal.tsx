@@ -5,12 +5,18 @@ import { Card } from "../ui/card";
 import UserAvatar from "../chat/UserAvatar";
 import { useChatStore } from "@/stores/useChatStore";
 
-const FriendListModal = () => {
+interface FriendListModalProps {
+  onClose?: () => void;
+}
+
+const FriendListModal = ({ onClose }: FriendListModalProps) => {
   const { friends } = useFriendStore();
   const { createConversation } = useChatStore();
 
   const handleAddConversation = async (friendId: string) => {
     await createConversation("direct", "", [friendId]);
+
+    onClose?.();
   };
 
   return (
@@ -33,7 +39,7 @@ const FriendListModal = () => {
             <Card
               key={friend._id}
               onClick={() => handleAddConversation(friend._id)}
-              className="p-3 cursor-pointer transition-smooth hover:shadow-soft glass hover:bg-muted/30 group/friendCard"
+              className="p-3 cursor-pointer transition-smooth hover:shadow-soft glass hover:bg-muted/30 group/friendCard ring-0"
             >
               <div className="flex items-center gap-3">
                 <UserAvatar
