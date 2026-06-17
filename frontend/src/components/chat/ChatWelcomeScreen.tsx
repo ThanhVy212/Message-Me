@@ -10,7 +10,7 @@ const ChatWelcomeScreen = () => {
           <div className="size-24 mx-auto mb-6 bg-gradient-primary rounded-full flex items-center justify-center shadow-glow pulse-ring">
             <span className="text-3xl">💬</span>
           </div>
-          <h2 className="text-2xl font-bold mb-2 bg-gradient-primary bg-clip-text text-transparent">
+          <h2 className="text-2xl font-bold mb-2 bg-primary bg-clip-text text-transparent">
             Chào mừng bạn đến với Message Me!
           </h2>
           <p className="text-muted-foreground">

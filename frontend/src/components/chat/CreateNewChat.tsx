@@ -22,7 +22,7 @@ const CreateNewChat = () => {
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <div className="flex items-center gap-4">
-              <div className="size-8 rounded-full bg-gradient-primary flex items-center justify-center group-hover/card:scale-110 transition-bounce">
+              <div className="size-8 rounded-full bg-primary flex items-center justify-center group-hover/card:scale-110 transition-bounce">
                 <MessageCircle className="size-4 text-white" />
               </div>
               <span className="text-sm font-medium capitalize ">

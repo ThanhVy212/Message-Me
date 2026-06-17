@@ -57,7 +57,9 @@ passport.use(
           }
           user.displayName = user.displayName || profile.displayName;
 
-          user.avatarUrl = user.avatarUrl || profile.photos?.[0]?.value;
+          if (profile.photos?.[0]?.value) {
+            user.avatarUrl = profile.photos[0].value;
+          }
 
           await user.save();
         }

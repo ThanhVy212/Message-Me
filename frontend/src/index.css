@@ -26,9 +26,9 @@
 
     /* Primary */
     /* Blue */
-    --primary: 204 88% 53%;
+    --primary: 204 88% 58%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 204 100% 65%;
+    --primary-glow: 204 90% 68%;
 
     /* Secondary - white black */
     --secondary: 192 14% 95%;
@@ -81,7 +81,7 @@
     --gradient-chat: linear-gradient(
       135deg,
       hsl(204, 88%, 53%),
-      hsl(206, 71%, 8%)
+      hsl(207, 62%, 33%)
     );
     --gradient-accent: linear-gradient(
       90deg,

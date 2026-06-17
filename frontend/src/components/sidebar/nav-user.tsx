@@ -21,10 +21,12 @@ import Logout from "../auth/Logout";
 import UserAvatar from "../chat/UserAvatar";
 import { useState } from "react";
 import FriendRequestDialog from "../addFriendModal/FriendRequestDialog";
+import ProfileDialog from "../profile/ProfileDialog";
 
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar();
   const [friendRequestOpen, setFriendRequestOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   return (
     <>
@@ -45,7 +47,7 @@ export function NavUser({ user }: { user: User }) {
                   <span className="truncate font-medium">
                     {user.displayName}
                   </span>
-                  <span className="truncate text-xs">{user.username}</span>
+                  <span className="truncate text-xs">@{user.username}</span>
                 </div>
                 <ChevronsUpDownIcon className="ml-auto size-4" />
               </SidebarMenuButton>
@@ -67,7 +69,7 @@ export function NavUser({ user }: { user: User }) {
                     <span className="truncate font-medium">
                       {user.displayName}
                     </span>
-                    <span className="truncate text-xs">{user.username}</span>
+                    <span className="truncate text-xs">@{user.username}</span>
                   </div>
                 </div>
               </DropdownMenuLabel>
@@ -75,7 +77,7 @@ export function NavUser({ user }: { user: User }) {
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 {/* account */}
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setProfileOpen(true)}>
                   <UserIcon className="text-muted-foreground dark:group-focus:!text-accent-foreground" />
                   Tài Khoản
                 </DropdownMenuItem>
@@ -102,6 +104,8 @@ export function NavUser({ user }: { user: User }) {
         open={friendRequestOpen}
         setOpen={setFriendRequestOpen}
       />
+
+      <ProfileDialog open={profileOpen} setOpen={setProfileOpen} />
     </>
   );
 }
