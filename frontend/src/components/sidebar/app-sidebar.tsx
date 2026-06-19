@@ -108,7 +108,7 @@ export function AppSidebar() {
 
   return (
     <>
-      <aside className="flex h-svh w-14 shrink-0 flex-col items-center bg-primary py-3">
+      <aside className="relative z-20 flex h-svh w-14 shrink-0 flex-col items-center bg-primary py-3">
         <button
           type="button"
           aria-label="Tài khhoản"
@@ -119,7 +119,7 @@ export function AppSidebar() {
             type="sidebar"
             name={user.displayName ?? ""}
             avatarUrl={user.avatarUrl ?? undefined}
-            className="size-8"
+            className="size-9.5"
           />
         </button>
 

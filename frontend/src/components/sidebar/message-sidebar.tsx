@@ -32,7 +32,15 @@ export function MessageSidebar({
   const { convoLoading } = useChatStore();
 
   return (
-    <Sidebar variant="inset" className="data-[side=left]:left-14" {...props}>
+    <Sidebar
+      variant="inset"
+      className="data-[side=left]:left-14"
+      style={{
+        "--sidebar-left": "3.5rem",
+        ...props.style,
+      } as React.CSSProperties}
+      {...props}
+    >
       {/* Header */}
       <SidebarHeader>
         <SidebarMenu>

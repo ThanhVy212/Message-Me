@@ -25,6 +25,10 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
 
   const unreadCount = convo.unreadCounts[user._id];
   const lastMessage = convo.lastMessage?.content ?? "";
+  const senderId =
+    convo.lastMessage?.sender?._id ||
+    (convo.lastMessage as any)?.senderId?._id ||
+    (convo.lastMessage as any)?.senderId;
 
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id);
@@ -70,7 +74,11 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
               : "text-muted-foreground",
           )}
         >
-          {lastMessage}
+          {convo.lastMessage
+            ? senderId === user._id
+              ? `Bạn: ${lastMessage}`
+              : lastMessage
+            : ""}
         </p>
       }
     />

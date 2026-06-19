@@ -24,6 +24,7 @@ const ChatWindowBody = () => {
   );
   const key = `chat-scroll-${activeConversationId}`;
 
+  const isGroup = selectedConvo?.type === "group";
   //ref
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -134,6 +135,7 @@ const ChatWindowBody = () => {
               messages={reversedMessages}
               selectedConvo={selectedConvo}
               lastMessageStatus={lastMessageStatus}
+              isGroup={isGroup}
             />
           ))}
         </InfiniteScroll>

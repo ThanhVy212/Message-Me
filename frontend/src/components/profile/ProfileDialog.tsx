@@ -19,7 +19,7 @@ const ProfileDialog = ({ open, setOpen }: ProfileDialogProps) => {
             {/* heading */}
             <DialogHeader className="mb-6">
               <DialogTitle className="text-2xl font-bold text-foreground">
-                Tài khoản & Cài đặt
+                Tài khoản tài khoản
               </DialogTitle>
             </DialogHeader>
 

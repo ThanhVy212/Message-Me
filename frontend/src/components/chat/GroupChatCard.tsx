@@ -5,6 +5,7 @@ import type { Conversation } from "@/types/chat";
 import ChatCard from "./ChatCard";
 import UnreadCountBadge from "./UnreadCountBadge";
 import GroupChatAvatar from "./GroupChatAvatar";
+import { cn } from "@/lib/utils";
 
 const GroupChatCard = ({ convo }: { convo: Conversation }) => {
   const { user } = useAuthStore();
@@ -19,6 +20,20 @@ const GroupChatCard = ({ convo }: { convo: Conversation }) => {
   if (!user) return null;
 
   const unreadCount = convo.unreadCounts[user._id];
+  const lastMessage = convo.lastMessage?.content ?? "";
+
+  const lastMsg = convo.lastMessage;
+  const senderId =
+    lastMsg?.sender?._id ||
+    (lastMsg as any)?.senderId?._id ||
+    (lastMsg as any)?.senderId;
+  const senderParticipant = convo.participants.find((p) => p._id === senderId);
+
+  const isOwnMessage = senderId === user._id;
+
+  const sender =
+    senderParticipant?.displayName ?? lastMsg?.sender?.displayName ?? "";
+
   const name = convo.group?.name ?? "";
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id);
@@ -47,8 +62,17 @@ const GroupChatCard = ({ convo }: { convo: Conversation }) => {
         </>
       }
       subtitle={
-        <p className="text-sm truncate text-muted-foreground">
-          {convo.participants.length} thành viên
+        <p
+          className={cn(
+            "text-sm truncate",
+            unreadCount > 0
+              ? "font-medium text-foregorund"
+              : "text-muted-foreground",
+          )}
+        >
+          {convo.lastMessage
+            ? `${isOwnMessage ? "Bạn" : sender}: ${lastMessage}`
+            : `${convo.participants.length} thành viên`}
         </p>
       }
     />

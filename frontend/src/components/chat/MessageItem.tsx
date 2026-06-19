@@ -10,6 +10,7 @@ interface MessageItemProps {
   messages: Message[];
   selectedConvo: Conversation;
   lastMessageStatus: "delivered" | "seen";
+  isGroup: boolean;
 }
 
 const MessageItem = ({
@@ -18,6 +19,7 @@ const MessageItem = ({
   messages,
   selectedConvo,
   lastMessageStatus,
+  isGroup,
 }: MessageItemProps) => {
   const prev = index + 1 < messages.length ? messages[index + 1] : undefined;
 
@@ -75,7 +77,14 @@ const MessageItem = ({
                 : "chat-bubble-received border-0",
             )}
           >
-            <p className="text-sm leading-relaxed break-words">
+            {/* sender if group chat */}
+            {isGroup && !message.isOwn && isGroupBreak && (
+              <p className="text-xs text-muted-foreground leading-none mb-0">
+                {participant?.displayName ?? "unknow"}
+              </p>
+            )}
+
+            <p className="text-sm leading-relaxed break-words m-0">
               {message.content}
             </p>
           </Card>
