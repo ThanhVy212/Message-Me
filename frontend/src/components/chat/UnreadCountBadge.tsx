@@ -1,11 +1,12 @@
-import { Badge } from "../ui/badge";
+import { CountBadge } from "../ui/count-badge";
 
 const UnreadCountBadge = ({ unreadCount }: { unreadCount: number }) => {
   return (
-    <div className="pulse-ring absolute z-20 -top-1 -right-1">
-      <Badge className="size-5 flex items-center justify-center p-0 text-xs bg-gradient-accent border border-background">
-        {unreadCount > 9 ? "9+" : unreadCount}
-      </Badge>
+    <div className=" absolute z-20 -top-1.5 -right-1.5">
+      <CountBadge
+        count={unreadCount}
+        className="size-5 text-[10px] border border-background"
+      />
     </div>
   );
 };

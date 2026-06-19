@@ -1,108 +1,213 @@
-"use client";
-
-import * as React from "react";
-
-import { NavUser } from "@/components/sidebar/nav-user";
+import { useState } from "react";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupAction,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { Moon, Sun } from "lucide-react";
-import { Switch } from "../ui/switch";
-import CreateNewChat from "../chat/CreateNewChat";
-import NewGroupChatModal from "../chat/NewGroupChatModal";
-import GroupChatList from "../chat/GroupChatList";
-import AddFriendModal from "../chat/AddFriendModal";
-import DirectMessageList from "../chat/DirectMessageList";
-import { useThemeStore } from "@/stores/useThemeStore";
+  BookUser,
+  MessageCircleMore,
+  Settings,
+  User,
+  type LucideIcon,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { AppPanel } from "@/types/store";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Button } from "../ui/button";
+import { CountBadge } from "../ui/count-badge";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useAppPanelStore } from "@/stores/useAppPanelStore";
+import { useFriendStore } from "@/stores/useFriendStore";
 import { useChatStore } from "@/stores/useChatStore";
-import ConversationSkeleton from "../skeleton/ConversationSkeleton";
+import UserAvatar from "../chat/UserAvatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import ProfileDialog from "../profile/ProfileDialog";
+import Logout from "../auth/Logout";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { isDark, toggleTheme } = useThemeStore();
+type NavItem = {
+  id: AppPanel;
+  label: string;
+  icon: LucideIcon;
+  panel: AppPanel;
+};
+
+const navItems: NavItem[] = [
+  {
+    id: "chat",
+    label: "Tin nhắn",
+    icon: MessageCircleMore,
+    panel: "chat",
+  },
+  {
+    id: "contacts",
+    label: "Danh bạ",
+    icon: BookUser,
+    panel: "contacts",
+  },
+];
+
+function AppSidebarIconButton({
+  icon: Icon,
+  label,
+  isActive,
+  onClick,
+  badgeCount,
+}: {
+  icon: LucideIcon;
+  label: string;
+  isActive?: boolean;
+  onClick?: () => void;
+  badgeCount?: number;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          type="button"
+          aria-label={label}
+          onClick={onClick}
+          className={cn(
+            "relative flex size-10 items-center justify-center rounded-xl text-white transition-colors",
+            isActive ? "bg-black/25 shadow-inner" : "hover:bg-white/15",
+          )}
+        >
+          <Icon className="size-5" />
+          {badgeCount !== undefined && badgeCount > 0 && (
+            <CountBadge
+              count={badgeCount}
+              className="absolute -top-1 -right-1 h-4 min-w-[16px] border border-primary text-[9px] shadow-sm"
+            />
+          )}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="right">{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+export function AppSidebar() {
   const { user } = useAuthStore();
-  const { convoLoading } = useChatStore();
+  const { activePanel, setActivePanel } = useAppPanelStore();
+  const { receivedList } = useFriendStore();
+  const { conversations } = useChatStore();
+
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  if (!user) {
+    return;
+  }
+
+  const incomingRequestCount = receivedList.length;
+  const totalUnreadCount = conversations.reduce(
+    (sum, convo) => sum + (convo.unreadCounts?.[user._id] ?? 0),
+    0,
+  );
 
   return (
-    <Sidebar variant="inset" {...props}>
-      {/* Header */}
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              asChild
-              className="bg-gradient-primary"
-            >
-              <a href="#">
-                <div className="flex w-full items-center px-2 justify-between">
-                  <h1 className="text-xl font-bold text-white">Message Me</h1>
-                  <div className="flex items-center gap-2">
-                    <Sun className="size-4 text-white/80" />
-                    <Switch
-                      checked={isDark}
-                      onCheckedChange={toggleTheme}
-                      className="data-[state=checked]:bg-background/80 cursor-pointer"
-                    />
-                    <Moon className="size-4 text-white/80" />
+    <>
+      <aside className="flex h-svh w-14 shrink-0 flex-col items-center bg-primary py-3">
+        <button
+          type="button"
+          aria-label="Tài khhoản"
+          onClick={() => setProfileOpen(true)}
+          className="mb-4 rounded-full ring-2 ring-white/30 transition-transform hover:scale-105"
+        >
+          <UserAvatar
+            type="sidebar"
+            name={user.displayName ?? ""}
+            avatarUrl={user.avatarUrl ?? undefined}
+            className="size-8"
+          />
+        </button>
+
+        {/* Navigation */}
+        <nav className="flex flex-col items-center gap-2">
+          {navItems.map((item) => (
+            <AppSidebarIconButton
+              key={item.id}
+              icon={item.icon}
+              label={item.label}
+              isActive={item.panel === activePanel}
+              onClick={() => setActivePanel(item.panel)}
+              badgeCount={
+                item.id === "contacts"
+                  ? incomingRequestCount
+                  : item.id === "chat"
+                    ? totalUnreadCount
+                    : undefined
+              }
+            />
+          ))}
+        </nav>
+
+        {/* Settings dropdown */}
+        <nav className="mt-auto flex flex-col items-center">
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    aria-label="Cài đặt"
+                    className="relative flex size-10 items-center justify-center rounded-xl text-white transition-colors hover:bg-white/15"
+                  >
+                    <Settings className="size-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+
+              <TooltipContent side="right">Cài đặt</TooltipContent>
+            </Tooltip>
+
+            <DropdownMenuContent side="right" align="start" className="w-56">
+              <DropdownMenuLabel className="flex flex-col gap-1 p-0 font-normal">
+                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                  <UserAvatar
+                    type="chat"
+                    name={user.displayName ?? ""}
+                    avatarUrl={user.avatarUrl ?? undefined}
+                  />
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">
+                      {user.displayName}
+                    </span>
+                    <span className="truncate text-xs">@{user.username}</span>
                   </div>
                 </div>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
+              </DropdownMenuLabel>
 
-      {/* Content */}
-      <SidebarContent className="better-scrollbar">
-        {/* New chat */}
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <CreateNewChat />
-          </SidebarGroupContent>
-        </SidebarGroup>
+              <DropdownMenuSeparator />
 
-        {/* Group chat */}
-        <SidebarGroup>
-          <div className="flex items-center justify-between">
-            <SidebarGroupLabel className="uppercase">
-              nhóm chat
-            </SidebarGroupLabel>
+              <DropdownMenuItem onClick={() => setProfileOpen(true)}>
+                <User className="mr-2 size-4" />
+                <span>Thông tin cá nhân</span>
+              </DropdownMenuItem>
 
-            <NewGroupChatModal />
-          </div>
+              <DropdownMenuItem onClick={() => {}}>
+                <Settings className="mr-2 size-4" />
+                <span>Cài đặt</span>
+              </DropdownMenuItem>
 
-          <SidebarGroupContent>
-            {convoLoading ? <ConversationSkeleton /> : <GroupChatList />}
-          </SidebarGroupContent>
-        </SidebarGroup>
+              <DropdownMenuSeparator />
 
-        {/* Direct message */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="uppercase">bạn bè</SidebarGroupLabel>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                variant="destructive"
+                asChild
+              >
+                <div>
+                  <Logout />
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </nav>
+      </aside>
 
-          <SidebarGroupAction title="Kết Bạn" className="cursor-pointer">
-            <AddFriendModal />
-          </SidebarGroupAction>
-
-          <SidebarGroupContent>
-            {convoLoading ? <ConversationSkeleton /> : <DirectMessageList />}
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      {/* Footer */}
-      <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
-    </Sidebar>
+      <ProfileDialog open={profileOpen} setOpen={setProfileOpen} />
+    </>
   );
 }

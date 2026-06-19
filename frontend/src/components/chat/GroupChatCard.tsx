@@ -1,5 +1,6 @@
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useChatStore } from "@/stores/useChatStore";
+import { useAppPanelStore } from "@/stores/useAppPanelStore";
 import type { Conversation } from "@/types/chat";
 import ChatCard from "./ChatCard";
 import UnreadCountBadge from "./UnreadCountBadge";
@@ -13,6 +14,7 @@ const GroupChatCard = ({ convo }: { convo: Conversation }) => {
     messages,
     fetchMessages,
   } = useChatStore();
+  const { setActivePanel } = useAppPanelStore();
 
   if (!user) return null;
 
@@ -20,6 +22,7 @@ const GroupChatCard = ({ convo }: { convo: Conversation }) => {
   const name = convo.group?.name ?? "";
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id);
+    setActivePanel("chat");
     if (!messages[id]) {
       await fetchMessages();
     }

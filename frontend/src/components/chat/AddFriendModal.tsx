@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,7 @@ export interface IFormValues {
   message: string;
 }
 
-const AddFriendModal = () => {
+const AddFriendModal = ({ trigger }: { trigger?: ReactNode }) => {
   const [isFound, setIsFound] = useState<boolean | null>(null);
   const [searchUser, setSearchUser] = useState<User>();
   const [searchedUsername, setSearchedUsername] = useState("");
@@ -83,10 +83,12 @@ const AddFriendModal = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <div className="flex justify-center items-center size-5 rounded-full hover:bg-sidebar-accent cursor-pointer z-10">
-          <UserPlus className="size-4" />
-          <span className="sr-only">Kết bạn</span>
-        </div>
+        {trigger ?? (
+          <div className="flex justify-center items-center size-5 rounded-full hover:bg-sidebar-accent cursor-pointer z-10">
+            <UserPlus className="size-4" />
+            <span className="sr-only">Kết bạn</span>
+          </div>
+        )}
       </DialogTrigger>
 
       <DialogContent>

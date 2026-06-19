@@ -38,6 +38,7 @@ export const formatMessageTime = (date: Date) => {
 
   const yesterday = new Date();
   yesterday.setDate(now.getDate() - 1);
+
   const isYesterday =
     date.getDate() === yesterday.getDate() &&
     date.getMonth() === yesterday.getMonth() &&
@@ -50,14 +51,14 @@ export const formatMessageTime = (date: Date) => {
   });
 
   if (isToday) {
-    return timeStr; // ví dụ: "14:35"
-  } else if (isYesterday) {
-    return `Hôm qua ${timeStr}`; // ví dụ: "Hôm qua 23:10"
-  } else if (date.getFullYear() === now.getFullYear()) {
-    return `${date.getDate()}/${date.getMonth() + 1} ${timeStr}`; // ví dụ: "22/9 09:15"
-  } else {
-    return `${date.getDate()}/${
-      date.getMonth() + 1
-    }/${date.getFullYear()} ${timeStr}`; // ví dụ: "15/12/2023 18:40"
+    return timeStr;
   }
+
+  if (isYesterday) {
+    return `Hôm qua, ${timeStr}`;
+  }
+
+  const dateStr = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+
+  return `${dateStr}, ${timeStr}`;
 };

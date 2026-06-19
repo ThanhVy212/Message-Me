@@ -104,3 +104,15 @@ export interface FriendState {
 export interface UserState {
   updateAvatarUrl: (formData: FormData) => Promise<void>;
 }
+
+export type AppPanel = "chat" | "contacts";
+export type ContactTab = "friends" | "groups" | "requests";
+
+export interface AppPanelState {
+  activePanel: AppPanel;
+  contactTab: ContactTab;
+  contactSearch: string;
+  setActivePanel: (panel: AppPanel) => void;
+  setContactTab: (tab: ContactTab) => void;
+  setContactSearch: (search: string) => void;
+}

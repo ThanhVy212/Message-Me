@@ -1,0 +1,103 @@
+"use client";
+
+import * as React from "react";
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupAction,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { Moon, Sun } from "lucide-react";
+import { Switch } from "../ui/switch";
+import CreateNewChat from "../chat/CreateNewChat";
+import NewGroupChatModal from "../chat/NewGroupChatModal";
+import GroupChatList from "../chat/GroupChatList";
+import AddFriendModal from "../chat/AddFriendModal";
+import DirectMessageList from "../chat/DirectMessageList";
+import { useThemeStore } from "@/stores/useThemeStore";
+import { useChatStore } from "@/stores/useChatStore";
+import ConversationSkeleton from "../skeleton/ConversationSkeleton";
+
+export function MessageSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
+  const { isDark, toggleTheme } = useThemeStore();
+  const { convoLoading } = useChatStore();
+
+  return (
+    <Sidebar variant="inset" className="data-[side=left]:left-14" {...props}>
+      {/* Header */}
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              size="lg"
+              asChild
+              className="bg-gradient-primary"
+            >
+              <a href="#">
+                <div className="flex w-full items-center px-2 justify-between">
+                  <h1 className="text-xl font-bold text-white">Message Me</h1>
+                  <div className="flex items-center gap-2">
+                    <Sun className="size-4 text-white/80" />
+                    <Switch
+                      checked={isDark}
+                      onCheckedChange={toggleTheme}
+                      className="data-[state=checked]:bg-background/80 cursor-pointer"
+                    />
+                    <Moon className="size-4 text-white/80" />
+                  </div>
+                </div>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+
+      {/* Content */}
+      <SidebarContent className="better-scrollbar">
+        {/* New chat */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <CreateNewChat />
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Group chat */}
+        <SidebarGroup>
+          <div className="flex items-center justify-between">
+            <SidebarGroupLabel className="uppercase">
+              nhóm chat
+            </SidebarGroupLabel>
+
+            <NewGroupChatModal />
+          </div>
+
+          <SidebarGroupContent>
+            {convoLoading ? <ConversationSkeleton /> : <GroupChatList />}
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Direct message */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="uppercase">bạn bè</SidebarGroupLabel>
+
+          <SidebarGroupAction title="Kết Bạn" className="cursor-pointer">
+            <AddFriendModal />
+          </SidebarGroupAction>
+
+          <SidebarGroupContent>
+            {convoLoading ? <ConversationSkeleton /> : <DirectMessageList />}
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+  );
+}

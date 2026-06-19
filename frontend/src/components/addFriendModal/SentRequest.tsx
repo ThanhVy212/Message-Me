@@ -3,7 +3,11 @@ import FriendRequestItem from "./FriendRequestItem";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 
-const SentRequest = () => {
+const SentRequest = ({
+  layout = "compact",
+}: {
+  layout?: "card" | "compact";
+}) => {
   const { cancelFriendRequest, sentList, loading } = useFriendStore();
 
   if (!sentList || sentList.length === 0) {
@@ -24,26 +28,26 @@ const SentRequest = () => {
   };
 
   return (
-    <div className="space-y-3 mt-4">
-      <>
-        {sentList.map((req) => (
-          <FriendRequestItem
-            key={req._id}
-            requestInfo={req}
-            type="sent"
-            actions={
-              <Button
-                size="sm"
-                variant="destructiveOutline"
-                onClick={() => handleCancel(req._id)}
-                disabled={loading}
-              >
-                Hủy lời mời
-              </Button>
-            }
-          />
-        ))}
-      </>
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      {sentList.map((req) => (
+        <FriendRequestItem
+          key={req._id}
+          requestInfo={req}
+          type="sent"
+          layout={layout}
+          actions={
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full rounded-lg"
+              onClick={() => handleCancel(req._id)}
+              disabled={loading}
+            >
+              Thu hồi lời mời
+            </Button>
+          }
+        />
+      ))}
     </div>
   );
 };

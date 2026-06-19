@@ -3,7 +3,11 @@ import FriendRequestItem from "./FriendRequestItem";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 
-const ReceivedRequest = () => {
+const ReceivedRequest = ({
+  layout = "compact",
+}: {
+  layout?: "card" | "compact";
+}) => {
   const { acceptFriendRequest, declineFriendRequest, loading, receivedList } =
     useFriendStore();
   if (!receivedList || receivedList.length === 0) {
@@ -33,30 +37,35 @@ const ReceivedRequest = () => {
   };
 
   return (
-    <div className="space-y-3 mt-4">
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {receivedList.map((req) => (
         <FriendRequestItem
           key={req._id}
           requestInfo={req}
+          layout={layout}
           actions={
-            <p className="flex gap-2">
+            <div
+              className={layout === "card" ? "flex w-full gap-4" : "flex gap-2"}
+            >
               <Button
                 size="sm"
-                variant="primary"
-                onClick={() => handleAccept(req._id)}
-                disabled={loading}
-              >
-                Chấp nhận
-              </Button>
-              <Button
-                size="sm"
-                variant="destructiveOutline"
+                variant="outline"
+                className="flex-1 rounded-lg"
                 onClick={() => handleDecline(req._id)}
                 disabled={loading}
               >
                 Từ chối
               </Button>
-            </p>
+              <Button
+                size="sm"
+                variant="primary"
+                className="flex-1 rounded-lg"
+                onClick={() => handleAccept(req._id)}
+                disabled={loading}
+              >
+                Đồng ý
+              </Button>
+            </div>
           }
           type="received"
         />
