@@ -24,10 +24,17 @@ api.interceptors.response.use(
       originalResquest.url.includes("/auth/signin") ||
       originalResquest.url.includes("/auth/signup") ||
       originalResquest.url.includes("/auth/google") ||
-      originalResquest.url.includes("/auth/refresh")
+      originalResquest.url.includes("/auth/refresh") ||
+      originalResquest.url.includes("/auth/signout")
     ) {
       return Promise.reject(err);
     }
+
+    const { accessToken } = useAuthStore.getState();
+    if (!accessToken) {
+      return Promise.reject(err);
+    }
+
     originalResquest._retryCount = originalResquest._retryCount || 0;
 
     if (err.response?.status === 403 && originalResquest._retryCount < 4) {

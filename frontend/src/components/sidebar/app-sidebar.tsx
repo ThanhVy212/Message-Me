@@ -26,6 +26,7 @@ import {
 } from "../ui/dropdown-menu";
 import ProfileDialog from "../profile/ProfileDialog";
 import Logout from "../auth/Logout";
+import SettingDialog from "../setting/SettingDialog";
 
 type NavItem = {
   id: AppPanel;
@@ -95,6 +96,7 @@ export function AppSidebar() {
   const { conversations } = useChatStore();
 
   const [profileOpen, setProfileOpen] = useState(false);
+  const [settingOpen, setSettingOpen] = useState(false);
 
   if (!user) {
     return;
@@ -186,7 +188,7 @@ export function AppSidebar() {
                 <span>Thông tin cá nhân</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => {}}>
+              <DropdownMenuItem onClick={() => setSettingOpen(true)}>
                 <Settings className="mr-2 size-4" />
                 <span>Cài đặt</span>
               </DropdownMenuItem>
@@ -208,6 +210,7 @@ export function AppSidebar() {
       </aside>
 
       <ProfileDialog open={profileOpen} setOpen={setProfileOpen} />
+      <SettingDialog open={settingOpen} setOpen={setSettingOpen} />
     </>
   );
 }
