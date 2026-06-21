@@ -8,6 +8,7 @@ export interface User {
   phone?: string;
   createdAt?: string;
   updatedAt?: string;
+  hasPassword?: boolean;
 }
 
 export interface Friend {

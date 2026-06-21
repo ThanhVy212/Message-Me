@@ -9,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useNavigate } from "react-router";
 import OautGoogle from "./OautGoogle";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const signUpChema = z.object({
   firstname: z.string().min(1, "Tên bắt buộc phải có"),
@@ -26,6 +28,7 @@ export function SignupForm({
 }: React.ComponentProps<"div">) {
   const { signUp } = useAuthStore();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -150,11 +153,25 @@ export function SignupForm({
                   <Label htmlFor="password" className="block text-sm">
                     Mật khẩu
                   </Label>
-                  <Input
-                    type="password"
-                    id="password"
-                    {...register("password")}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      {...register("password")}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground cursor-pointer"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+
                   {errors.password && (
                     <p className="text-destructive text-sm">
                       {errors.password.message}

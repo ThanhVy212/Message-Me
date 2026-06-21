@@ -103,6 +103,13 @@ export interface FriendState {
 
 export interface UserState {
   updateAvatarUrl: (formData: FormData) => Promise<void>;
+  addPassword: (password: string) => Promise<void>;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
+  updateProfile: (
+    displayName: string,
+    phone: string,
+    bio: string,
+  ) => Promise<void>;
 }
 
 export type AppPanel = "chat" | "contacts";
