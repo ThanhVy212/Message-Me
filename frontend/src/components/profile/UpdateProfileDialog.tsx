@@ -126,7 +126,7 @@ const UpdateProfileDialog = ({ open, setOpen }: UpdateProfileDialogProps) => {
             <div>
               <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
                 <FileText className="w-3.5 h-3.5" />
-                Tiểu sử (Bio)
+                Tiểu sử
               </label>
               <textarea
                 value={bio}

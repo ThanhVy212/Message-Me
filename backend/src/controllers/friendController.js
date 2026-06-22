@@ -211,3 +211,35 @@ export const getFriendRequests = async (req, res) => {
     return res.status(500).json({ message: "Lỗi hệ thống" });
   }
 };
+
+export const unfriend = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { friendId } = req.params;
+
+    let userA = userId.toString();
+    let userB = friendId.toString();
+
+    if (userA > userB) {
+      [userA, userB] = [userB, userA];
+    }
+
+    const deletedFriend = await Friend.findOneAndDelete({ userA, userB });
+
+    if (!deletedFriend) {
+      return res.status(404).json({ message: "Không tìm thấy quan hệ bạn bè" });
+    }
+
+    await FriendRequest.deleteMany({
+      $or: [
+        { from: userId, to: friendId },
+        { from: friendId, to: userId },
+      ],
+    });
+
+    return res.status(200).json({ message: "Hủy kết bạn thành công" });
+  } catch (err) {
+    console.error("Lỗi khi hủy kết bạn", err);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};

@@ -109,4 +109,17 @@ export const useFriendStore = create<FriendState>((set, get) => ({
       set({ loading: false });
     }
   },
+  unfriend: async (friendId) => {
+    try {
+      set({ loading: true });
+      await friendService.unfriend(friendId);
+      set((state) => ({
+        friends: state.friends.filter((f) => f._id !== friendId),
+      }));
+    } catch (err) {
+      console.error("Lỗi xảy ra khi unfriend", err);
+    } finally {
+      set({ loading: false });
+    }
+  },
 }));

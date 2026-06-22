@@ -38,6 +38,7 @@ export interface ThemeState {
 
 export interface ChatState {
   conversations: Conversation[];
+  groupsList: Conversation[];
   messages: Record<
     string,
     {
@@ -78,6 +79,19 @@ export interface ChatState {
     name: string,
     memberIds: string[],
   ) => Promise<void>;
+  deleteConversation: (conversationId: string) => Promise<void>;
+  hideConversation: (conversationId: string, isHidden: boolean) => Promise<void>;
+  recallMessage: (messageId: string) => Promise<void>;
+  deleteMessageMySide: (messageId: string) => Promise<void>;
+  uploadGroupAvatar: (conversationId: string, formData: FormData) => Promise<void>;
+  fetchGroupsList: () => Promise<void>;
+  leaveGroup: (conversationId: string) => Promise<void>;
+  transferAdmin: (conversationId: string, newAdminId: string) => Promise<void>;
+  deleteGroup: (conversationId: string) => Promise<void>;
+  addGroupMembers: (
+    conversationId: string,
+    memberIds: string[],
+  ) => Promise<void>;
 }
 
 export interface SocketState {
@@ -99,6 +113,7 @@ export interface FriendState {
   declineFriendRequest: (requestId: string) => Promise<void>;
   cancelFriendRequest: (requestId: string) => Promise<void>;
   getFriends: () => Promise<void>;
+  unfriend: (friendId: string) => Promise<void>;
 }
 
 export interface UserState {

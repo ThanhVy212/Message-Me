@@ -1,10 +1,16 @@
 import { useChatStore } from "@/stores/useChatStore";
 import NewGroupChatModal from "../chat/NewGroupChatModal";
 import ContactFriendSekeleton from "../skeleton/ContactFriendSekeleton";
-import GroupChatList from "../chat/GroupChatList";
+import ContactGroupChatList from "./ContactGroupChatList";
+import ContactSearchBar from "./ContactSearchBar";
+import { useEffect } from "react";
 
 const ContactGroupList = () => {
-  const { convoLoading } = useChatStore();
+  const { convoLoading, fetchGroupsList } = useChatStore();
+
+  useEffect(() => {
+    void fetchGroupsList();
+  }, [fetchGroupsList]);
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -13,8 +19,10 @@ const ContactGroupList = () => {
         <NewGroupChatModal />
       </header>
 
+      <ContactSearchBar placeholder="Tìm nhóm chat theo tên..." />
+
       <div className="flex-1 overflow-y-auto p-4 better-scrollbar">
-        {convoLoading ? <ContactFriendSekeleton /> : <GroupChatList />}
+        {convoLoading ? <ContactFriendSekeleton /> : <ContactGroupChatList />}
       </div>
     </div>
   );

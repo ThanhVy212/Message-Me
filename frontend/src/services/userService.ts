@@ -1,6 +1,11 @@
 import api from "@/lib/axios";
 
 export const userService = {
+  getUserProfile: async (userId: string) => {
+    const res = await api.get(`/users/profile/${userId}`);
+    return res.data.user;
+  },
+
   uploadAvatar: async (formData: FormData) => {
     const res = await api.post("/users/uploadAvatar", formData, {
       headers: { "Content-Type": "multipart/form-data" },

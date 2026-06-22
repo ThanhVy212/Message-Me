@@ -4,8 +4,11 @@ import { SidebarInset } from "../ui/sidebar";
 import ChatWindowHeader from "./ChatWindowHeader";
 import ChatWindowBody from "./ChatWindowBody";
 import MessageInput from "./MessageInput";
+import UnfriendedChatNotice from "./UnfriendedChatNotice";
 import { useEffect } from "react";
 import ChatWindowSkeleton from "../skeleton/ChatWindowSkeleton";
+import { useFriendStore } from "@/stores/useFriendStore";
+import { useDirectConversationPeer } from "@/hooks/useDirectConversationPeer";
 
 const ChatWindowLayout = () => {
   const {
@@ -14,9 +17,15 @@ const ChatWindowLayout = () => {
     messageLoading: loading,
     markAsSeen,
   } = useChatStore();
+  const getFriends = useFriendStore((state) => state.getFriends);
 
   const selectedConvo =
     conversations.find((c) => c._id === activeConversationId) ?? null;
+  const { otherUser, isFriend } = useDirectConversationPeer(selectedConvo);
+
+  useEffect(() => {
+    void getFriends();
+  }, [getFriends, activeConversationId]);
 
   useEffect(() => {
     if (!selectedConvo) {
@@ -52,7 +61,11 @@ const ChatWindowLayout = () => {
       </div>
 
       {/* Footer */}
-      <MessageInput selectedConvo={selectedConvo} />
+      {selectedConvo.type === "direct" && !isFriend && otherUser ? (
+        <UnfriendedChatNotice otherUser={otherUser} />
+      ) : (
+        <MessageInput selectedConvo={selectedConvo} />
+      )}
     </SidebarInset>
   );
 };

@@ -1,8 +1,18 @@
-import { cn, formatMessageTime } from "@/lib/utils";
+import { cn, formatMessageTime, isSameId } from "@/lib/utils";
 import type { Conversation, Message, Participant } from "@/types/chat";
 import UserAvatar from "./UserAvatar";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { MoreVertical, Trash2, Undo } from "lucide-react";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useChatStore } from "@/stores/useChatStore";
+import { useConfirm } from "@/hooks/useConfirm";
 
 interface MessageItemProps {
   message: Message;
@@ -21,18 +31,43 @@ const MessageItem = ({
   lastMessageStatus,
   isGroup,
 }: MessageItemProps) => {
+  const { user } = useAuthStore();
+  const { recallMessage, deleteMessageMySide } = useChatStore();
+  const { confirm, confirmDialog } = useConfirm();
   const prev = index + 1 < messages.length ? messages[index + 1] : undefined;
+  const isOwn = isSameId(message.senderId, user?._id);
 
   const isGroupBreak =
     index === 0 ||
-    message.senderId !== prev?.senderId ||
+    !isSameId(message.senderId, prev?.senderId) ||
     new Date(message.createdAt).getTime() -
       new Date(prev?.createdAt || 0).getTime() >
       300000;
 
-  const participant = selectedConvo.participants.find(
-    (p: Participant) => p._id.toString() === message.senderId.toString(),
+  const participant = selectedConvo.participants.find((p: Participant) =>
+    isSameId(p._id, message.senderId),
   );
+
+  const handleRecall = async (messageId: string) => {
+    const ok = await confirm({
+      title: "Thu hồi tin nhắn",
+      description: "Bạn có chắc chắn muốn thu hồi tin nhắn này không?",
+      confirmText: "Thu hồi",
+      variant: "destructive",
+    });
+    if (ok) await recallMessage(messageId);
+  };
+
+  const handleDeleteMySide = async (messageId: string) => {
+    const ok = await confirm({
+      title: "Xóa tin nhắn",
+      description:
+        "Bạn có chắc chắn muốn xóa tin nhắn này ở phía bạn không?",
+      confirmText: "Xóa",
+      variant: "destructive",
+    });
+    if (ok) await deleteMessageMySide(messageId);
+  };
 
   return (
     <div className="flex flex-col w-full">
@@ -45,12 +80,12 @@ const MessageItem = ({
 
       <div
         className={cn(
-          "flex gap-2 message-bounce mt-1",
-          message.isOwn ? "justify-end" : "justify-start",
+          "flex w-full gap-2 message-bounce mt-1 items-center group/msg justify-start",
+          isOwn ? "flex-row-reverse" : "flex-row",
         )}
       >
         {/* avatar */}
-        {!message.isOwn && (
+        {!isOwn && (
           <div className="w-8">
             {isGroupBreak && (
               <UserAvatar
@@ -66,31 +101,35 @@ const MessageItem = ({
         <div
           className={cn(
             "max-w-xs lg:max-w-md space-y-1 flex flex-col",
-            message.isOwn ? "items-end" : "items-start",
+            isOwn ? "items-end" : "items-start",
           )}
         >
           <Card
             className={cn(
               "p-3 ring-1 ring-foreground/10 ring-inset",
-              message.isOwn
+              isOwn
                 ? "chat-bubble-sent border-0"
                 : "chat-bubble-received border-0",
+              message.isRecalled &&
+                "opacity-60 bg-muted/20 text-muted-foreground italic",
             )}
           >
             {/* sender if group chat */}
-            {isGroup && !message.isOwn && isGroupBreak && (
+            {isGroup && !isOwn && isGroupBreak && (
               <p className="text-xs text-muted-foreground leading-none mb-0">
                 {participant?.displayName ?? "unknow"}
               </p>
             )}
 
             <p className="text-sm leading-relaxed break-words m-0">
-              {message.content}
+              {message.isRecalled
+                ? "Tin nhắn đã được thu hồi"
+                : message.content}
             </p>
           </Card>
 
           {/* seen/ delivered */}
-          {message.isOwn && message._id === selectedConvo.lastMessage?._id && (
+          {isOwn && message._id === selectedConvo.lastMessage?._id && (
             <Badge
               variant="outline"
               className={cn(
@@ -104,7 +143,44 @@ const MessageItem = ({
             </Badge>
           )}
         </div>
+
+        {/* Action dropdown next to bubble */}
+        {!message.isRecalled && (
+          <div
+            className={cn(
+              "opacity-0 group-hover/msg:opacity-100 transition-opacity duration-200",
+              isOwn ? "mr-1" : "ml-1",
+            )}
+          >
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-1 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center">
+                  <MoreVertical className="size-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={isOwn ? "end" : "start"}>
+                {isOwn && (
+                  <DropdownMenuItem
+                    onClick={() => void handleRecall(message._id)}
+                    className="cursor-pointer"
+                  >
+                    <Undo className="size-4 mr-2" />
+                    <span>Thu hồi tin nhắn</span>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  onClick={() => void handleDeleteMySide(message._id)}
+                  className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+                >
+                  <Trash2 className="size-4 mr-2 text-destructive" />
+                  <span>Xóa chỉ ở phía tôi</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </div>
+      {confirmDialog}
     </div>
   );
 };

@@ -58,7 +58,12 @@ const GroupChatCard = ({ convo }: { convo: Conversation }) => {
       leftSection={
         <>
           {unreadCount > 0 && <UnreadCountBadge unreadCount={unreadCount} />}
-          <GroupChatAvatar participants={convo.participants} type="chat" />
+          <GroupChatAvatar
+            participants={convo.participants}
+            type="chat"
+            groupAvatarUrl={convo.group?.avatarUrl}
+            groupName={name}
+          />
         </>
       }
       subtitle={

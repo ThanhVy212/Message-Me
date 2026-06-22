@@ -4,9 +4,27 @@ import UserAvatar from "./UserAvatar";
 interface GroupChatAvatarProps {
   participants: Participant[];
   type: "chat" | "sidebar";
+  groupAvatarUrl?: string | null;
+  groupName?: string;
 }
 
-const GroupChatAvatar = ({ participants, type }: GroupChatAvatarProps) => {
+const GroupChatAvatar = ({
+  participants,
+  type,
+  groupAvatarUrl,
+  groupName,
+}: GroupChatAvatarProps) => {
+  if (groupAvatarUrl) {
+    return (
+      <UserAvatar
+        type={type}
+        name={groupName ?? "Group"}
+        avatarUrl={groupAvatarUrl}
+        className="size-12 shrink-0"
+      />
+    );
+  }
+
   const showBadge = participants.length > 4;
 
   const visible = showBadge ? participants.slice(0, 3) : participants;

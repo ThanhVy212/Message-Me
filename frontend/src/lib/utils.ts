@@ -1,8 +1,48 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { Participant } from "@/types/chat";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+export function normalizeId(id: unknown): string {
+  if (id == null) return "";
+  if (typeof id === "string") return id;
+  if (typeof id === "object" && "_id" in id) {
+    return normalizeId((id as { _id: unknown })._id);
+  }
+  return String(id);
+}
+
+export function isSameId(a: unknown, b: unknown): boolean {
+  return normalizeId(a) === normalizeId(b);
+}
+
+export function normalizeParticipant(part: unknown): Participant {
+  const p = part as Record<string, unknown>;
+  const userId = p.userId;
+
+  if (typeof userId === "object" && userId !== null && "displayName" in userId) {
+    const user = userId as Record<string, unknown>;
+    return {
+      _id: normalizeId(user._id),
+      username: user.username as string | undefined,
+      displayName: (user.displayName as string) ?? "",
+      avatarUrl: (user.avatarUrl as string | null) ?? null,
+      joinedAt: (p.joinedAt as string) ?? "",
+      role: (p.role as Participant["role"]) ?? "member",
+    };
+  }
+
+  return {
+    _id: normalizeId(p._id ?? p.userId),
+    username: p.username as string | undefined,
+    displayName: (p.displayName as string) ?? "",
+    avatarUrl: (p.avatarUrl as string | null) ?? null,
+    joinedAt: (p.joinedAt as string) ?? "",
+    role: (p.role as Participant["role"]) ?? "member",
+  };
 }
 
 export const formatOnlineTime = (date: Date) => {

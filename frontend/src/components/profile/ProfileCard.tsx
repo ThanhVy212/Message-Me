@@ -5,20 +5,20 @@ import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { useSocketStore } from "@/stores/useSocketStore";
 import AvatarUploader from "./AvatarUploader";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 interface ProfileCardProps {
   user: User | null;
 }
 
 const ProfileCard = ({ user }: ProfileCardProps) => {
+  const { user: currentUser } = useAuthStore();
   const { onlineUsers } = useSocketStore();
 
   if (!user) return;
-  if (!user.bio) {
-    user.bio = "Chưa thêm tiểu sử";
-  }
 
   const isOnline = onlineUsers.includes(user._id) ? true : false;
+  const isMe = currentUser?._id === user._id;
 
   return (
     <Card className="overflow-hidden p-0 h-52 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
@@ -30,8 +30,7 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
             avatarUrl={user.avatarUrl ?? undefined}
             className="ring-4 ring-white shadow-lg"
           />
-
-          <AvatarUploader />
+          {isMe && <AvatarUploader />}
         </div>
 
         {/* user info */}
@@ -40,11 +39,9 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
             {user.displayName}
           </h1>
 
-          {user.bio && (
-            <p className="text-white/70 text-sm mt-2 max-w-lg line-clamp-2">
-              {user.bio}
-            </p>
-          )}
+          <p className="text-white/70 text-sm mt-2 max-w-lg line-clamp-2">
+            @{user.username}
+          </p>
         </div>
 
         {/* status */}

@@ -1,11 +1,12 @@
 import { useUserStore } from "@/stores/useUserStore";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Camera } from "lucide-react";
 
 const AvatarUploader = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { updateAvatarUrl } = useUserStore();
+  const [uploading, setUploading] = useState(false);
 
   const handleClick = () => {
     fileInputRef.current?.click();
@@ -21,7 +22,14 @@ const AvatarUploader = () => {
 
     formData.append("file", file);
 
-    await updateAvatarUrl(formData);
+    try {
+      setUploading(true);
+      await updateAvatarUrl(formData);
+    } catch (err) {
+      console.error("Lỗi khi upload ảnh đại diện:", err);
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -34,6 +42,9 @@ const AvatarUploader = () => {
       >
         <Camera className="size-4" />
       </Button>
+      {uploading && (
+        <p className="text-xs text-foreground animate-pulse">Đang tải lên</p>
+      )}
 
       <input
         type="file"

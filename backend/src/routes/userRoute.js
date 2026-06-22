@@ -3,6 +3,7 @@ import {
   addPassword,
   authMe,
   changePassword,
+  getUserProfile,
   searchUserByUsername,
   updateProfile,
   uploadAvatar,
@@ -13,6 +14,7 @@ const router = express.Router();
 
 router.get("/me", authMe);
 router.get("/search", searchUserByUsername);
+router.get("/profile/:userId", getUserProfile);
 router.post("/uploadAvatar", upload.single("file"), uploadAvatar);
 router.post("/add-password", addPassword);
 router.post("/change-password", changePassword);

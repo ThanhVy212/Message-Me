@@ -1,3 +1,4 @@
+import { isSameId, normalizeParticipant } from "@/lib/utils";
 import { chatService } from "@/services/chatService";
 import type { ChatState } from "@/types/store";
 import { create } from "zustand";
@@ -9,6 +10,7 @@ export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
       conversations: [],
+      groupsList: [],
       messages: {},
       activeConversationId: null,
       convoLoading: false,
@@ -19,6 +21,7 @@ export const useChatStore = create<ChatState>()(
       reset: () => {
         set({
           conversations: [],
+          groupsList: [],
           messages: {},
           activeConversationId: null,
           convoLoading: false,
@@ -30,7 +33,13 @@ export const useChatStore = create<ChatState>()(
           set({ convoLoading: true });
           const { conversations } = await chatService.fetchConversations();
 
-          set({ conversations, convoLoading: false });
+          set({
+            conversations: conversations.map((c) => ({
+              ...c,
+              participants: (c.participants ?? []).map(normalizeParticipant),
+            })),
+            convoLoading: false,
+          });
         } catch (err) {
           console.error("Lỗi xảy ra khi fetchConversations:", err);
           set({ convoLoading: false });
@@ -60,7 +69,7 @@ export const useChatStore = create<ChatState>()(
 
           const processed = fetched.map((m) => ({
             ...m,
-            isOwn: m.senderId === user?._id,
+            isOwn: isSameId(m.senderId, user?._id),
           }));
 
           set((state) => {
@@ -121,7 +130,7 @@ export const useChatStore = create<ChatState>()(
           const { user } = useAuthStore.getState();
           const { fetchMessages } = get();
 
-          message.isOwn = message.senderId === user?._id;
+          message.isOwn = isSameId(message.senderId, user?._id);
 
           const convoId = message.conversationId;
 
@@ -153,12 +162,42 @@ export const useChatStore = create<ChatState>()(
         }
       },
 
-      updateConversation: (conversation) => {
-        set((state) => ({
-          conversations: state.conversations.map((c) =>
-            c._id === conversation._id ? { ...c, ...conversation } : c,
+      updateConversation: (conversation: any) => {
+        const normalized = {
+          ...conversation,
+          participants: (conversation.participants ?? []).map(
+            normalizeParticipant,
           ),
-        }));
+        };
+
+        set((state) => {
+          const exists = state.conversations.some((c) =>
+            isSameId(c._id, normalized._id),
+          );
+          let newConversations = state.conversations;
+          if (!exists) {
+            newConversations = [normalized, ...state.conversations];
+          } else {
+            newConversations = state.conversations.map((c) =>
+              isSameId(c._id, normalized._id) ? { ...c, ...normalized } : c,
+            );
+          }
+
+          const newGroupsList = state.groupsList.some((g) =>
+            isSameId(g._id, normalized._id),
+          )
+            ? state.groupsList.map((g) =>
+                isSameId(g._id, normalized._id) ? { ...g, ...normalized } : g,
+              )
+            : normalized.type === "group"
+              ? [normalized, ...state.groupsList]
+              : state.groupsList;
+
+          return {
+            conversations: newConversations,
+            groupsList: newGroupsList,
+          };
+        });
       },
       markAsSeen: async () => {
         try {
@@ -202,16 +241,21 @@ export const useChatStore = create<ChatState>()(
       },
 
       addConvo: async (convo) => {
+        const normalized = {
+          ...convo,
+          participants: (convo.participants ?? []).map(normalizeParticipant),
+        };
+
         set((state) => {
           const exists = state.conversations.some(
-            (c) => c._id.toString() === convo._id.toString(),
+            (c) => c._id.toString() === normalized._id.toString(),
           );
 
           return {
             conversations: exists
               ? state.conversations
-              : [convo, ...state.conversations],
-            activeConversationId: convo._id,
+              : [normalized, ...state.conversations],
+            activeConversationId: normalized._id,
           };
         });
       },
@@ -241,10 +285,227 @@ export const useChatStore = create<ChatState>()(
           set({ loading: false });
         }
       },
+      deleteConversation: async (conversationId) => {
+        try {
+          set({ loading: true });
+          await chatService.deleteConversation(conversationId);
+          set((state) => {
+            const newConversations = state.conversations.filter(
+              (c) => c._id !== conversationId,
+            );
+            const activeId =
+              state.activeConversationId === conversationId
+                ? null
+                : state.activeConversationId;
+            
+            // Clear message history in client store
+            const newMessages = { ...state.messages };
+            delete newMessages[conversationId];
+
+            return {
+              conversations: newConversations,
+              activeConversationId: activeId,
+              messages: newMessages,
+            };
+          });
+        } catch (err) {
+          console.error("Lỗi xảy ra khi deleteConversation", err);
+        } finally {
+          set({ loading: false });
+        }
+      },
+      hideConversation: async (conversationId, isHidden) => {
+        try {
+          set({ loading: true });
+          await chatService.hideConversation(conversationId, isHidden);
+          set((state) => {
+            const newConversations = state.conversations.filter(
+              (c) => c._id !== conversationId,
+            );
+            const activeId =
+              state.activeConversationId === conversationId
+                ? null
+                : state.activeConversationId;
+            return {
+              conversations: newConversations,
+              activeConversationId: activeId,
+            };
+          });
+        } catch (err) {
+          console.error("Lỗi xảy ra khi hideConversation", err);
+        } finally {
+          set({ loading: false });
+        }
+      },
+      recallMessage: async (messageId) => {
+        try {
+          await chatService.recallMessage(messageId);
+        } catch (err) {
+          console.error("Lỗi xảy ra khi recallMessage", err);
+        }
+      },
+      deleteMessageMySide: async (messageId) => {
+        try {
+          const { activeConversationId } = get();
+          if (!activeConversationId) return;
+          await chatService.deleteMessageMySide(messageId);
+          set((state) => {
+            const convoId = activeConversationId;
+            const current = state.messages[convoId];
+            if (!current) return state;
+            const updatedItems = current.items.filter(
+              (item) => item._id !== messageId,
+            );
+            return {
+              messages: {
+                ...state.messages,
+                [convoId]: {
+                  ...current,
+                  items: updatedItems,
+                },
+              },
+            };
+          });
+        } catch (err) {
+          console.error("Lỗi xảy ra khi deleteMessageMySide", err);
+        }
+      },
+      uploadGroupAvatar: async (conversationId, formData) => {
+        try {
+          set({ loading: true });
+          const conversation = await chatService.uploadGroupAvatar(
+            conversationId,
+            formData,
+          );
+          get().updateConversation(conversation);
+        } catch (err) {
+          console.error("Lỗi xảy ra khi uploadGroupAvatar", err);
+        } finally {
+          set({ loading: false });
+        }
+      },
+      fetchGroupsList: async () => {
+        try {
+          set({ convoLoading: true });
+          const { conversations } = await chatService.fetchAllGroups();
+          set({
+            groupsList: conversations.map((c) => ({
+              ...c,
+              participants: (c.participants ?? []).map(normalizeParticipant),
+            })),
+            convoLoading: false,
+          });
+        } catch (err) {
+          console.error("Lỗi xảy ra khi fetchGroupsList", err);
+          set({ convoLoading: false });
+        }
+      },
+      leaveGroup: async (conversationId) => {
+        try {
+          set({ loading: true });
+          await chatService.leaveGroup(conversationId);
+          set((state) => {
+            const newConversations = state.conversations.filter(
+              (c) => c._id !== conversationId,
+            );
+            const newGroupsList = state.groupsList.filter(
+              (g) => g._id !== conversationId,
+            );
+            const activeId =
+              state.activeConversationId === conversationId
+                ? null
+                : state.activeConversationId;
+            return {
+              conversations: newConversations,
+              groupsList: newGroupsList,
+              activeConversationId: activeId,
+            };
+          });
+        } catch (err) {
+          console.error("Lỗi xảy ra khi leaveGroup", err);
+        } finally {
+          set({ loading: false });
+        }
+      },
+      transferAdmin: async (conversationId, newAdminId) => {
+        try {
+          set({ loading: true });
+          const updated = await chatService.transferAdmin(
+            conversationId,
+            newAdminId,
+          );
+          get().updateConversation(updated);
+        } catch (err) {
+          console.error("Lỗi xảy ra khi transferAdmin", err);
+        } finally {
+          set({ loading: false });
+        }
+      },
+      deleteGroup: async (conversationId) => {
+        try {
+          set({ loading: true });
+          await chatService.deleteGroup(conversationId);
+          set((state) => {
+            const newConversations = state.conversations.filter(
+              (c) => c._id !== conversationId,
+            );
+            const newGroupsList = state.groupsList.filter(
+              (g) => g._id !== conversationId,
+            );
+            const activeId =
+              state.activeConversationId === conversationId
+                ? null
+                : state.activeConversationId;
+
+            const newMessages = { ...state.messages };
+            delete newMessages[conversationId];
+
+            return {
+              conversations: newConversations,
+              groupsList: newGroupsList,
+              activeConversationId: activeId,
+              messages: newMessages,
+            };
+          });
+        } catch (err) {
+          console.error("Lỗi xảy ra khi deleteGroup", err);
+        } finally {
+          set({ loading: false });
+        }
+      },
+      addGroupMembers: async (conversationId, memberIds) => {
+        try {
+          set({ loading: true });
+          const conversation = await chatService.addGroupMembers(
+            conversationId,
+            memberIds,
+          );
+          get().updateConversation(conversation);
+        } catch (err) {
+          console.error("Lỗi xảy ra khi addGroupMembers", err);
+          throw err;
+        } finally {
+          set({ loading: false });
+        }
+      },
     }),
     {
       name: "chat-storage",
       partialize: (state) => ({ conversations: state.conversations }),
+      merge: (persisted, current) => {
+        const saved = persisted as Partial<ChatState> | undefined;
+        if (!saved?.conversations) {
+          return current;
+        }
+
+        return {
+          ...current,
+          conversations: saved.conversations.map((c) => ({
+            ...c,
+            participants: (c.participants ?? []).map(normalizeParticipant),
+          })),
+        };
+      },
     },
   ),
 );

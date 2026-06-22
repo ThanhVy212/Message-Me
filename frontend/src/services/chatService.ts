@@ -66,4 +66,60 @@ export const chatService = {
     const res = await api.post("/conversations", { type, name, memberIds });
     return res.data.conversation;
   },
+
+  async deleteConversation(conversationId: string) {
+    const res = await api.delete(`/conversations/${conversationId}`);
+    return res.data;
+  },
+
+  async hideConversation(conversationId: string, isHidden: boolean) {
+    const res = await api.patch(`/conversations/${conversationId}/hide`, { isHidden });
+    return res.data;
+  },
+
+  async recallMessage(messageId: string) {
+    const res = await api.post(`/messages/${messageId}/recall`);
+    return res.data.message;
+  },
+
+  async deleteMessageMySide(messageId: string) {
+    const res = await api.post(`/messages/${messageId}/delete-my-side`);
+    return res.data;
+  },
+
+  async uploadGroupAvatar(conversationId: string, formData: FormData) {
+    const res = await api.post(`/conversations/${conversationId}/avatar`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data.conversation;
+  },
+
+  async fetchAllGroups(): Promise<ConversationResponse> {
+    const res = await api.get("/conversations/all-groups");
+    return res.data;
+  },
+
+  async leaveGroup(conversationId: string) {
+    const res = await api.post(`/conversations/${conversationId}/leave`);
+    return res.data;
+  },
+
+  async transferAdmin(conversationId: string, newAdminId: string) {
+    const res = await api.post(`/conversations/${conversationId}/transfer-admin`, { newAdminId });
+    return res.data.conversation;
+  },
+
+  async deleteGroup(conversationId: string) {
+    const res = await api.delete(`/conversations/${conversationId}/group`);
+    return res.data;
+  },
+
+  async addGroupMembers(conversationId: string, memberIds: string[]) {
+    const res = await api.post(`/conversations/${conversationId}/members`, {
+      memberIds,
+    });
+    return res.data.conversation;
+  },
 };

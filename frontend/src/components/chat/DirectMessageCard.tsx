@@ -50,20 +50,19 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
       onSelect={handleSelectConversation}
       unreadCount={unreadCount}
       leftSection={
-        <>
+        <div className="relative shrink-0">
           <UserAvatar
             type="sidebar"
             name={otherUser.displayName ?? ""}
             avatarUrl={otherUser.avatarUrl ?? undefined}
           />
-          {/* todo: socket io */}
           <StatusBadge
             status={
               onlineUsers.includes(otherUser?._id ?? "") ? "online" : "offline"
             }
           />
           {unreadCount > 0 && <UnreadCountBadge unreadCount={unreadCount} />}
-        </>
+        </div>
       }
       subtitle={
         <p

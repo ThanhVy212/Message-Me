@@ -1,8 +1,11 @@
 export interface Participant {
   _id: string;
+  username?: string;
+  email?: string;
   displayName: string;
   avatarUrl?: string | null;
   joinedAt: string;
+  role?: "admin" | "member";
 }
 
 export interface SeenUser {
@@ -14,6 +17,8 @@ export interface SeenUser {
 export interface Group {
   name: string;
   createdBy: string;
+  avatarUrl?: string | null;
+  avatarId?: string | null;
 }
 
 export interface LastMessage {
@@ -25,6 +30,7 @@ export interface LastMessage {
     displayName: string;
     avatarUrl?: string | null;
   };
+  isRecalled?: boolean;
 }
 
 export interface Conversation {
@@ -53,4 +59,5 @@ export interface Message {
   updatedAt?: string | null;
   createdAt: string;
   isOwn?: boolean;
+  isRecalled?: boolean;
 }

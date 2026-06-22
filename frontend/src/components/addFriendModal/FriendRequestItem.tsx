@@ -1,6 +1,6 @@
-import type { FriendRequest } from "@/types/user";
+import type { FriendRequest, User } from "@/types/user";
 import type { ReactNode } from "react";
-import UserAvatar from "../chat/UserAvatar";
+import UserAvatarLink from "../chat/UserAvatarLink";
 
 interface RequestItemProps {
   requestInfo: FriendRequest;
@@ -34,12 +34,7 @@ const FriendRequestItem = ({
     return (
       <div className="rounded-xl border border-border/50 bg-card p-4 shadow-sm">
         <div className="mb-3 flex items-start gap-3">
-          <UserAvatar
-            type="sidebar"
-            name={info.displayName ?? ""}
-            avatarUrl={info.avatarUrl ?? undefined}
-            className="size-12"
-          />
+          <UserAvatarLink user={info as User} />
 
           <div className="min-w-0 flex-1">
             <p className="font-semibold">{info.displayName}</p>
@@ -64,12 +59,7 @@ const FriendRequestItem = ({
     return (
       <div className="flex h-full flex-col rounded-xl border border-border/50 bg-card p-4 shadow-sm">
         <div className="mb-3 flex items-center gap-3">
-          <UserAvatar
-            type="sidebar"
-            name={info.displayName ?? ""}
-            avatarUrl={info.avatarUrl ?? undefined}
-            className="size-12"
-          />
+          <UserAvatarLink user={info as User} />
 
           <div className="min-w-0">
             <p className="truncate font-semibold">{info.displayName}</p>
@@ -89,11 +79,7 @@ const FriendRequestItem = ({
   return (
     <div className="flex items-center justify-between rounded-lg border border-primary-foreground p-3 shadow-md">
       <div className="flex items-center gap-3">
-        <UserAvatar
-          type="sidebar"
-          name={info.displayName ?? ""}
-          avatarUrl={info.avatarUrl ?? undefined}
-        />
+        <UserAvatarLink user={info as User} />
 
         <div>
           <p className="font-medium">{info.displayName}</p>

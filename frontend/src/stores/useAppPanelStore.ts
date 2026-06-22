@@ -6,6 +6,11 @@ export const useAppPanelStore = create<AppPanelState>((set, get) => ({
   contactTab: "friends",
   contactSearch: "",
   setActivePanel: (panel) => set({ activePanel: panel }),
-  setContactTab: (tab) => set({ contactTab: tab }),
+  setContactTab: (tab) =>
+    set((state) =>
+      state.contactTab === tab
+        ? state
+        : { contactTab: tab, contactSearch: "" },
+    ),
   setContactSearch: (search) => set({ contactSearch: search }),
 }));

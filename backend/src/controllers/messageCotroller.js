@@ -54,7 +54,7 @@ export const sendDirectMessage = async (req, res) => {
 
     await conversation.save();
 
-    emitNewMessage(io, conversation, message);
+    await emitNewMessage(io, conversation, message);
 
     return res.status(201).json({ message });
   } catch (err) {
@@ -83,11 +83,81 @@ export const sendGroupMessage = async (req, res) => {
 
     await conversation.save();
 
-    emitNewMessage(io, conversation, message);
+    await emitNewMessage(io, conversation, message);
 
     return res.status(201).json({ message });
   } catch (err) {
     console.error("Lỗi xảy ra khi gửi tin nhắn nhóm");
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+export const recallMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const userId = req.user._id;
+
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).json({ message: "Không tìm thấy tin nhắn" });
+    }
+
+    if (message.senderId.toString() !== userId.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Bạn không có quyền thu hồi tin nhắn này" });
+    }
+
+    message.isRecalled = true;
+    message.content = "Tin nhắn đã được thu hồi";
+    message.imgUrl = null;
+    await message.save();
+
+    const convo = await Conversation.findById(message.conversationId);
+    if (
+      convo &&
+      convo.lastMessage &&
+      convo.lastMessage._id.toString() === messageId.toString()
+    ) {
+      convo.lastMessage.content = "Tin nhắn đã được thu hồi";
+      convo.lastMessage.isRecalled = true;
+      await convo.save();
+    }
+
+    io.to(message.conversationId.toString()).emit("message-recalled", {
+      messageId: message._id,
+      conversationId: message.conversationId,
+      lastMessage: convo ? convo.lastMessage : null,
+    });
+
+    return res.status(200).json({ message });
+  } catch (err) {
+    console.error("Lỗi khi thu hồi tin nhắn", err);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+export const deleteMessageMySide = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const userId = req.user._id;
+
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).json({ message: "Không tìm thấy tin nhắn" });
+    }
+
+    if (!message.deletedBy.includes(userId)) {
+      message.deletedBy.push(userId);
+      await message.save();
+    }
+
+    return res.status(200).json({
+      messageId: message._id,
+      message: "Xóa tin nhắn ở phía bạn thành công",
+    });
+  } catch (err) {
+    console.error("Lỗi khi xóa tin nhắn 1 phía", err);
     return res.status(500).json({ message: "Lỗi hệ thống" });
   }
 };

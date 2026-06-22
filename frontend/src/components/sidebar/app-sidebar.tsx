@@ -27,6 +27,7 @@ import {
 import ProfileDialog from "../profile/ProfileDialog";
 import Logout from "../auth/Logout";
 import SettingDialog from "../setting/SettingDialog";
+import UserAvatarLink from "../chat/UserAvatarLink";
 
 type NavItem = {
   id: AppPanel;
@@ -111,19 +112,7 @@ export function AppSidebar() {
   return (
     <>
       <aside className="relative z-20 flex h-svh w-14 shrink-0 flex-col items-center bg-primary py-3">
-        <button
-          type="button"
-          aria-label="Tài khhoản"
-          onClick={() => setProfileOpen(true)}
-          className="mb-4 rounded-full ring-2 ring-white/30 transition-transform hover:scale-105"
-        >
-          <UserAvatar
-            type="sidebar"
-            name={user.displayName ?? ""}
-            avatarUrl={user.avatarUrl ?? undefined}
-            className="size-9.5"
-          />
-        </button>
+        <UserAvatarLink user={user} className="mb-4" />
 
         {/* Navigation */}
         <nav className="flex flex-col items-center gap-2">
@@ -209,7 +198,7 @@ export function AppSidebar() {
         </nav>
       </aside>
 
-      <ProfileDialog open={profileOpen} setOpen={setProfileOpen} />
+      <ProfileDialog open={profileOpen} setOpen={setProfileOpen} user={user} />
       <SettingDialog open={settingOpen} setOpen={setSettingOpen} />
     </>
   );

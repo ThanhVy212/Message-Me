@@ -18,6 +18,25 @@ export const authMe = async (req, res) => {
   }
 };
 
+export const getUserProfile = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId).select(
+      "_id username email displayName avatarUrl bio phone createdAt updatedAt",
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    return res.status(200).json({ user });
+  } catch (err) {
+    console.error("Lỗi khi gọi getUserProfile", err);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
 export const searchUserByUsername = async (req, res) => {
   try {
     const { username } = req.query;
@@ -57,7 +76,7 @@ export const uploadAvatar = async (req, res) => {
         avatarId: result.public_id,
       },
       {
-        new: true,
+        returnDocument: "after",
       },
     ).select("avatarUrl");
 
@@ -144,7 +163,7 @@ export const updateProfile = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { displayName, bio, phone },
-      { new: true },
+      { returnDocument: "after" },
     );
 
     const userJson = updatedUser.toObject();

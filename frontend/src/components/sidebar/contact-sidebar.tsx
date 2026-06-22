@@ -1,9 +1,6 @@
 import { useAppPanelStore } from "@/stores/useAppPanelStore";
 import type { ContactTab } from "@/types/store";
-import { Search, UserPlus, Users, UsersRound } from "lucide-react";
-import { Input } from "../ui/input";
-import AddFriendModal from "../chat/AddFriendModal";
-import { Button } from "../ui/button";
+import { UserPlus, Users, UsersRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CountBadge } from "../ui/count-badge";
 import { useFriendStore } from "@/stores/useFriendStore";
@@ -14,41 +11,27 @@ const navItems: {
   icon: typeof Users;
 }[] = [
   { id: "friends", label: "Danh sách bạn bè", icon: Users },
-  { id: "groups", label: "Danh sách nhóm chát", icon: UsersRound },
+  { id: "groups", label: "Danh sách nhóm chat", icon: UsersRound },
   { id: "requests", label: "Lời mời kết bạn", icon: UserPlus },
 ];
 
 export function ContactSidebar() {
-  const { contactTab, contactSearch, setContactTab, setContactSearch } =
-    useAppPanelStore();
+  const { contactTab, setContactTab } = useAppPanelStore();
   const { receivedList } = useFriendStore();
 
   const incomingRequestCount = receivedList.length;
 
   return (
     <aside className="flex h-svh w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-      <div className="flex h-[60px] items-center border-b border-sidebar-border px-3">
-        <div className="flex w-full items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={contactSearch}
-              onChange={(event) => setContactSearch(event.target.value)}
-              placeholder="Tìm kiếm"
-              className="pl-9"
-            />
+      <header className="flex h-[60px] items-center border-b border-sidebar-border px-3">
+        <a href="#" className="flex w-full">
+          <div className="flex w-full items-center gap-2 rounded-md bg-gradient-primary px-4 py-2 shadow-md ring-1 ring-white/10">
+            <span className="text-lg font-bold tracking-tight text-white">
+              Message Me
+            </span>
           </div>
-
-          <AddFriendModal
-            trigger={
-              <Button size="icon" variant="outline" className="shrink-0">
-                <UserPlus className="size-4" />
-              </Button>
-            }
-          />
-        </div>
-      </div>
-
+        </a>
+      </header>
       <nav className="flex-1 space-y-1 p-2">
         {navItems.map((item) => {
           const Icon = item.icon;
