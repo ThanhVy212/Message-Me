@@ -143,12 +143,16 @@ const GroupSettingsDialog = ({ chat }: { chat: Conversation }) => {
       const otherParticipants = liveChat.participants.filter(
         (p) => !isSameId(p._id, user?._id),
       );
+      const ok = await confirm({
+        title: "Cảnh báo",
+        description:
+          "Bạn là trưởng nhóm hãy nhường trưởng nhóm trước khi rời nhóm!",
+        confirmText: "Đồng ý",
+      });
       if (otherParticipants.length > 0) {
-        alert(
-          "Bạn là trưởng nhóm. Hãy chuyển quyền trưởng nhóm cho thành viên khác trước khi rời nhóm.",
-        );
-        return;
+        if (ok) return;
       }
+      return;
     }
 
     const ok = await confirm({
@@ -211,7 +215,10 @@ const GroupSettingsDialog = ({ chat }: { chat: Conversation }) => {
             </Button>
 
             <div className="space-y-2">
-              <Label htmlFor="add-member-search" className="text-sm font-semibold">
+              <Label
+                htmlFor="add-member-search"
+                className="text-sm font-semibold"
+              >
                 Mời thành viên
               </Label>
               <Input
@@ -250,128 +257,130 @@ const GroupSettingsDialog = ({ chat }: { chat: Conversation }) => {
             </Button>
           </div>
         ) : (
-        <div className="space-y-4 py-4">
-          <div className="flex flex-col items-center gap-2">
-            <div
-              className="relative cursor-pointer group/avatar rounded-full overflow-hidden"
-              onClick={handleAvatarClick}
-            >
-              <GroupChatAvatar
-                participants={liveChat.participants}
-                type="sidebar"
-                groupAvatarUrl={liveChat.group?.avatarUrl}
-                groupName={liveChat.group?.name}
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity">
-                <Camera className="size-5 text-white" />
+          <div className="space-y-4 py-4">
+            <div className="flex flex-col items-center gap-2">
+              <div
+                className="relative cursor-pointer group/avatar rounded-full overflow-hidden"
+                onClick={handleAvatarClick}
+              >
+                <GroupChatAvatar
+                  participants={liveChat.participants}
+                  type="sidebar"
+                  groupAvatarUrl={liveChat.group?.avatarUrl}
+                  groupName={liveChat.group?.name}
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity">
+                  <Camera className="size-5 text-white" />
+                </div>
               </div>
-            </div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              className="hidden"
-              accept="image/*"
-              disabled={uploading}
-            />
-            {uploading && (
-              <p className="text-xs text-primary animate-pulse">
-                Đang tải lên...
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+                accept="image/*"
+                disabled={uploading}
+              />
+              {uploading && (
+                <p className="text-xs text-primary animate-pulse">
+                  Đang tải lên...
+                </p>
+              )}
+              <h3 className="font-semibold text-lg">{liveChat.group?.name}</h3>
+              <p className="text-xs text-muted-foreground">
+                Nhóm chat • {liveChat.participants.length} thành viên
               </p>
-            )}
-            <h3 className="font-semibold text-lg">{liveChat.group?.name}</h3>
-            <p className="text-xs text-muted-foreground">
-              Nhóm chat • {liveChat.participants.length} thành viên
-            </p>
-          </div>
+            </div>
 
-          <Separator className="bg-border" />
+            <Separator className="bg-border" />
 
-          <div className="space-y-2">
-            <h4 className="font-medium text-sm px-1">Thành viên</h4>
-            <div className="max-h-60 overflow-y-auto space-y-2 pr-1 better-scrollbar">
-              {liveChat.participants.map((member) => (
-                <div
-                  key={member._id}
-                  className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/40 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <UserAvatar
-                      type="sidebar"
-                      name={member.displayName}
-                      avatarUrl={member.avatarUrl ?? undefined}
-                    />
-                    <div>
-                      <p className="font-medium text-sm">
-                        {member.displayName}
-                      </p>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        {member.role === "admin" && (
-                          <Shield className="size-3 text-primary" />
-                        )}
-                        {member.role === "admin" ? "Trưởng nhóm" : "Thành viên"}
-                      </p>
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm px-1">Thành viên</h4>
+              <div className="max-h-60 overflow-y-auto space-y-2 pr-1 better-scrollbar">
+                {liveChat.participants.map((member) => (
+                  <div
+                    key={member._id}
+                    className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/40 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <UserAvatar
+                        type="sidebar"
+                        name={member.displayName}
+                        avatarUrl={member.avatarUrl ?? undefined}
+                      />
+                      <div>
+                        <p className="font-medium text-sm">
+                          {member.displayName}
+                        </p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          {member.role === "admin" && (
+                            <Shield className="size-3 text-primary" />
+                          )}
+                          {member.role === "admin"
+                            ? "Trưởng nhóm"
+                            : "Thành viên"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {member.role === "admin" ? (
+                        <Badge
+                          variant="outline"
+                          className="bg-primary/10 text-primary border-primary/20 text-xs"
+                        >
+                          Trưởng nhóm
+                        </Badge>
+                      ) : (
+                        isAdmin && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs text-primary hover:text-primary hover:bg-primary/10 cursor-pointer"
+                            onClick={() =>
+                              void handleTransferAdmin(
+                                member._id,
+                                member.displayName,
+                              )
+                            }
+                          >
+                            Chuyển trưởng nhóm
+                          </Button>
+                        )
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {member.role === "admin" ? (
-                      <Badge
-                        variant="outline"
-                        className="bg-primary/10 text-primary border-primary/20 text-xs"
-                      >
-                        Trưởng nhóm
-                      </Badge>
-                    ) : (
-                      isAdmin && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 text-xs text-primary hover:text-primary hover:bg-primary/10 cursor-pointer"
-                          onClick={() =>
-                            void handleTransferAdmin(
-                              member._id,
-                              member.displayName,
-                            )
-                          }
-                        >
-                          Chuyển trưởng nhóm
-                        </Button>
-                      )
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+
+            <Separator className="bg-border" />
+
+            <div className="flex flex-col gap-2 pt-2">
+              <Button
+                variant="outline"
+                className="w-full justify-center text-sm text-primary hover:text-primary hover:bg-primary/10 cursor-pointer"
+                onClick={() => void handleOpenAddMembers()}
+              >
+                Thêm thành viên
+              </Button>
+              {isAdmin && (
+                <Button
+                  variant="destructive"
+                  className="w-full justify-center text-sm cursor-pointer"
+                  onClick={() => void handleDeleteGroup()}
+                >
+                  Xóa nhóm chat
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                className="w-full justify-center text-sm text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+                onClick={() => void handleLeaveGroup()}
+              >
+                Rời khỏi nhóm
+              </Button>
             </div>
           </div>
-
-          <Separator className="bg-border" />
-
-          <div className="flex flex-col gap-2 pt-2">
-            <Button
-              variant="outline"
-              className="w-full justify-center text-sm text-primary hover:text-primary hover:bg-primary/10 cursor-pointer"
-              onClick={() => void handleOpenAddMembers()}
-            >
-              Thêm thành viên
-            </Button>
-            {isAdmin && (
-              <Button
-                variant="destructive"
-                className="w-full justify-center text-sm cursor-pointer"
-                onClick={() => void handleDeleteGroup()}
-              >
-                Xóa nhóm chat
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              className="w-full justify-center text-sm text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer"
-              onClick={() => void handleLeaveGroup()}
-            >
-              Rời khỏi nhóm
-            </Button>
-          </div>
-        </div>
         )}
       </DialogContent>
       {confirmDialog}
@@ -409,24 +418,24 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
         <Separator orientation="vertical" className="h-4 bg-sidebar-border" />
 
         <div className="p-2 w-full flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {chat.type === "direct" ? (
-                <UserAvatarLink
-                  user={otherUser as User}
-                  status={
-                    onlineUsers.includes(otherUser?._id ?? "")
-                      ? "online"
-                      : "offline"
-                  }
-                />
-              ) : (
-                <GroupChatAvatar
-                  participants={chat.participants}
-                  type="sidebar"
-                  groupAvatarUrl={chat.group?.avatarUrl}
-                  groupName={chat.group?.name}
-                />
-              )}
+          <div className="flex items-center gap-3">
+            {chat.type === "direct" ? (
+              <UserAvatarLink
+                user={otherUser as User}
+                status={
+                  onlineUsers.includes(otherUser?._id ?? "")
+                    ? "online"
+                    : "offline"
+                }
+              />
+            ) : (
+              <GroupChatAvatar
+                participants={chat.participants}
+                type="sidebar"
+                groupAvatarUrl={chat.group?.avatarUrl}
+                groupName={chat.group?.name}
+              />
+            )}
 
             {/* name */}
             <h2 className="font-semibold text-foreground">

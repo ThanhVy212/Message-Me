@@ -24,6 +24,16 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
       if (selectedConvo.type === "direct") {
         const participants = selectedConvo.participants;
         const otherUser = participants.filter((p) => p._id !== user._id)[0];
+        
+        if (!otherUser || !otherUser._id) {
+          console.error("Không tìm thấy người nhận trong cuộc trò chuyện", {
+            participants,
+            userId: user._id,
+          });
+          toast.error("Không tìm thấy người nhận! Hãy thử lại");
+          return;
+        }
+        
         await sendDirectMessage(otherUser._id, currValue);
       } else {
         await sendGroupMessage(selectedConvo._id, currValue);

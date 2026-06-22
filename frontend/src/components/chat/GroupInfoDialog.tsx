@@ -56,12 +56,16 @@ const GroupInfoDialog = ({ chat }: { chat: Conversation }) => {
       const otherParticipants = chat.participants.filter(
         (p) => p._id !== user?._id,
       );
+      const ok = await confirm({
+        title: "Cảnh báo",
+        description:
+          "Bạn là trưởng nhóm hãy nhường trưởng nhóm trước khi rời nhóm!",
+        confirmText: "Đồng ý",
+      });
       if (otherParticipants.length > 0) {
-        alert(
-          "Bạn là trưởng nhóm. Hãy chuyển quyền trưởng nhóm cho thành viên khác trước khi rời nhóm.",
-        );
-        return;
+        if (ok) return;
       }
+      return;
     }
 
     const ok = await confirm({

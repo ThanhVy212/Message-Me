@@ -163,34 +163,59 @@ export const useChatStore = create<ChatState>()(
       },
 
       updateConversation: (conversation: any) => {
-        const normalized = {
-          ...conversation,
-          participants: (conversation.participants ?? []).map(
-            normalizeParticipant,
-          ),
-        };
-
         set((state) => {
           const exists = state.conversations.some((c) =>
-            isSameId(c._id, normalized._id),
+            isSameId(c._id, conversation._id),
           );
           let newConversations = state.conversations;
           if (!exists) {
+            const normalized = {
+              ...conversation,
+              participants: (conversation.participants ?? []).map(
+                normalizeParticipant,
+              ),
+            };
             newConversations = [normalized, ...state.conversations];
           } else {
-            newConversations = state.conversations.map((c) =>
-              isSameId(c._id, normalized._id) ? { ...c, ...normalized } : c,
-            );
+            newConversations = state.conversations.map((c) => {
+              if (!isSameId(c._id, conversation._id)) return c;
+              
+              // Only update participants if they're provided in the incoming data
+              const shouldUpdateParticipants = conversation.participants != null;
+              const normalizedParticipants = shouldUpdateParticipants
+                ? (conversation.participants ?? []).map(normalizeParticipant)
+                : c.participants;
+              
+              return {
+                ...c,
+                ...conversation,
+                participants: normalizedParticipants,
+              };
+            });
           }
 
           const newGroupsList = state.groupsList.some((g) =>
-            isSameId(g._id, normalized._id),
+            isSameId(g._id, conversation._id),
           )
-            ? state.groupsList.map((g) =>
-                isSameId(g._id, normalized._id) ? { ...g, ...normalized } : g,
-              )
-            : normalized.type === "group"
-              ? [normalized, ...state.groupsList]
+            ? state.groupsList.map((g) => {
+                if (!isSameId(g._id, conversation._id)) return g;
+                
+                const shouldUpdateParticipants = conversation.participants != null;
+                const normalizedParticipants = shouldUpdateParticipants
+                  ? (conversation.participants ?? []).map(normalizeParticipant)
+                  : g.participants;
+                
+                return {
+                  ...g,
+                  ...conversation,
+                  participants: normalizedParticipants,
+                };
+              })
+            : conversation.type === "group"
+              ? [{
+                  ...conversation,
+                  participants: (conversation.participants ?? []).map(normalizeParticipant),
+                }, ...state.groupsList]
               : state.groupsList;
 
           return {
