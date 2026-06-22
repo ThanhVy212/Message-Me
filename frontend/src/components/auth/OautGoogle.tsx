@@ -32,11 +32,7 @@ function GoogleColoredIcon({ className }: { className?: string }) {
 
 const OautGoogle = () => {
   const handleOautGoogle = () => {
-    const baseUrl =
-      import.meta.env.MODE === "development"
-        ? "http://localhost:5001/api"
-        : "api";
-    window.location.href = `${baseUrl}/auth/google`;
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
   };
 
   return (
