@@ -96,6 +96,15 @@ export const chatService = {
     return res.data.conversation;
   },
 
+  async uploadMessageImage(formData: FormData): Promise<string> {
+    const res = await api.post("/messages/upload-image", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data.url;
+  },
+
   async fetchAllGroups(): Promise<ConversationResponse> {
     const res = await api.get("/conversations/all-groups");
     return res.data;

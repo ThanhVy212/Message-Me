@@ -111,9 +111,13 @@ export const signOut = async (req, res) => {
 
     if (token) {
       await Session.deleteOne({ refreshToken: token });
-
-      res.clearCookie("refreshToken");
     }
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
 
     return res.sendStatus(204);
   } catch (err) {
@@ -177,7 +181,9 @@ export const callbackGoogle = async (req, res, next) => {
       maxAge: REFRESH_TOKEN_TTL,
     });
 
-    return res.redirect(process.env.CLIENT_URL);
+    return res.redirect(
+      `${process.env.CLIENT_URL}/auth-success`
+    );
   } catch (err) {
     console.error("Lỗi khi gọi callbackGoogle", err);
     return res.status(500).json({ message: "Lỗi hệ thống" });

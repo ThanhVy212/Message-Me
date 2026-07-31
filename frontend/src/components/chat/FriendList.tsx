@@ -12,12 +12,14 @@ interface FriendListProps {
   onSelectFriend: (friendId: string) => void;
   friends?: Friend[];
   emptyMessage?: string;
+  showUnfriendButton?: boolean;
 }
 
 const FriendList = ({
   onSelectFriend,
   friends: friendsProp,
   emptyMessage,
+  showUnfriendButton = true,
 }: FriendListProps) => {
   const { friends: storeFriends, unfriend } = useFriendStore();
   const friends = friendsProp ?? storeFriends;
@@ -65,17 +67,19 @@ const FriendList = ({
                 </div>
               </div>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  void handleUnfriend(friend._id);
-                }}
-              >
-                <UserX className="size-4" />
-              </Button>
+              {showUnfriendButton && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void handleUnfriend(friend._id);
+                  }}
+                >
+                  <UserX className="size-4" />
+                </Button>
+              )}
             </div>
           </Card>
         );

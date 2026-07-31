@@ -16,7 +16,7 @@ interface AddMemberToGroupProps {
 const AddMemberToGroup = ({ open, setOpen, chat }: AddMemberToGroupProps) => {
   const [search, setSearch] = useState("");
 
-  const { addNewMembertoGroup } = useChatStore();
+  const { addGroupMembers } = useChatStore();
   const { friends } = useFriendStore();
 
   const filteredFriends = useMemo(() => {
@@ -32,7 +32,7 @@ const AddMemberToGroup = ({ open, setOpen, chat }: AddMemberToGroupProps) => {
   const handleAddMember = async (friendId: string) => {
     if (!chat) return;
 
-    await addNewMembertoGroup(chat._id, friendId);
+    await addGroupMembers(chat._id, [friendId]);
 
     setOpen(false);
   };

@@ -1,6 +1,4 @@
-import { useNavigate } from "react-router";
 import { Button } from "../ui/button";
-import { useAuthStore } from "@/stores/useAuthStore";
 
 function GoogleColoredIcon({ className }: { className?: string }) {
   return (

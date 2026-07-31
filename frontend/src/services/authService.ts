@@ -24,10 +24,12 @@ export const authService = {
       { withCredentials: true },
     );
 
+
+
     return res.data;
   },
   signOut: async () => {
-    return api.post("/auth/signout", { withCredentials: true });
+    return api.post("/auth/signout", {}, { withCredentials: true });
   },
 
   fetchMe: async () => {
@@ -36,7 +38,11 @@ export const authService = {
   },
 
   refresh: async () => {
-    const res = await api.post("/auth/refresh", { withCredentials: true });
+    const res = await api.post(
+      "/auth/refresh",
+      {},
+      { withCredentials: true },
+    );
     return res.data.accessToken;
   },
 };

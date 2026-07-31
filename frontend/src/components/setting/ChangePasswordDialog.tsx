@@ -39,10 +39,13 @@ const ChangePasswordDialog = ({ open, setOpen }: ChangePasswordDialogProps) => {
 
   useEffect(() => {
     if (!open) {
-      setOldPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      setErrors({});
+      const timer = setTimeout(() => {
+        setOldPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setErrors({});
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [open]);
 

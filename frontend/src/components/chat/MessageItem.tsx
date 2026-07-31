@@ -61,8 +61,7 @@ const MessageItem = ({
   const handleDeleteMySide = async (messageId: string) => {
     const ok = await confirm({
       title: "Xóa tin nhắn",
-      description:
-        "Bạn có chắc chắn muốn xóa tin nhắn này ở phía bạn không?",
+      description: "Bạn có chắc chắn muốn xóa tin nhắn này ở phía bạn không?",
       confirmText: "Xóa",
       variant: "destructive",
     });
@@ -104,29 +103,45 @@ const MessageItem = ({
             isOwn ? "items-end" : "items-start",
           )}
         >
-          <Card
-            className={cn(
-              "p-3 ring-1 ring-foreground/10 ring-inset",
-              isOwn
-                ? "chat-bubble-sent border-0"
-                : "chat-bubble-received border-0",
-              message.isRecalled &&
-                "opacity-60 bg-muted/20 text-muted-foreground italic",
-            )}
-          >
-            {/* sender if group chat */}
-            {isGroup && !isOwn && isGroupBreak && (
-              <p className="text-xs text-muted-foreground leading-none mb-0">
-                {participant?.displayName ?? "unknow"}
-              </p>
-            )}
-
-            <p className="text-sm leading-relaxed break-words m-0">
-              {message.isRecalled
-                ? "Tin nhắn đã được thu hồi"
-                : message.content}
+          {/* sender if group chat */}
+          {isGroup && !isOwn && isGroupBreak && (
+            <p className="text-xs text-muted-foreground leading-none mb-1">
+              {participant?.displayName ?? "unknow"}
             </p>
-          </Card>
+          )}
+
+          {message.imgUrl && !message.isRecalled && (
+            <div className="rounded-lg overflow-hidden cursor-zoom-in max-w-full">
+              <img
+                src={message.imgUrl}
+                alt="Sent image"
+                className="max-h-60 max-w-full object-contain rounded-lg hover:opacity-95 transition-opacity"
+                onClick={() =>
+                  message.imgUrl &&
+                  window.open(message.imgUrl, "_blank", "noopener,noreferrer")
+                }
+              />
+            </div>
+          )}
+
+          {(!message.imgUrl || message.content || message.isRecalled) && (
+            <Card
+              className={cn(
+                "p-3 ring-1 ring-foreground/10 ring-inset",
+                isOwn
+                  ? "chat-bubble-sent border-0"
+                  : "chat-bubble-received border-0",
+                message.isRecalled &&
+                  "opacity-60 bg-muted/20 text-muted-foreground italic",
+              )}
+            >
+              <p className="text-sm leading-relaxed break-words m-0">
+                {message.isRecalled
+                  ? "Tin nhắn đã được thu hồi"
+                  : message.content}
+              </p>
+            </Card>
+          )}
 
           {/* seen/ delivered */}
           {isOwn && message._id === selectedConvo.lastMessage?._id && (
