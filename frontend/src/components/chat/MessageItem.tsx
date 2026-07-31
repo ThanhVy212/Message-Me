@@ -61,8 +61,7 @@ const MessageItem = ({
   const handleDeleteMySide = async (messageId: string) => {
     const ok = await confirm({
       title: "Xóa tin nhắn",
-      description:
-        "Bạn có chắc chắn muốn xóa tin nhắn này ở phía bạn không?",
+      description: "Bạn có chắc chắn muốn xóa tin nhắn này ở phía bạn không?",
       confirmText: "Xóa",
       variant: "destructive",
     });
@@ -117,7 +116,10 @@ const MessageItem = ({
                 src={message.imgUrl}
                 alt="Sent image"
                 className="max-h-60 max-w-full object-contain rounded-lg hover:opacity-95 transition-opacity"
-                onClick={() => window.open(message.imgUrl ?? undefined, "_blank")}
+                onClick={() =>
+                  message.imgUrl &&
+                  window.open(message.imgUrl, "_blank", "noopener,noreferrer")
+                }
               />
             </div>
           )}

@@ -1,28 +1,23 @@
 import { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useNavigate } from "react-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 const AuthSuccessPage = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { setAccessToken } = useAuthStore();
+  const { refresh } = useAuthStore();
 
   useEffect(() => {
-    const accessToken = searchParams.get("accessToken");
-    const refreshToken = searchParams.get("refreshToken");
+    const handleAuthSuccess = async () => {
+      await refresh();
+      if (useAuthStore.getState().accessToken) {
+        navigate("/", { replace: true });
+      } else {
+        navigate("/signin", { replace: true });
+      }
+    };
 
-    if (accessToken && refreshToken) {
-      // Lưu accessToken vào Zustand store
-      setAccessToken(accessToken);
-      // Lưu refreshToken vào localStorage
-      localStorage.setItem("refreshToken", refreshToken);
-      // Chuyển hướng về trang chủ
-      navigate("/", { replace: true });
-    } else {
-      // Nếu thiếu token, chuyển hướng về trang đăng nhập
-      navigate("/signin", { replace: true });
-    }
-  }, [searchParams, setAccessToken, navigate]);
+    handleAuthSuccess();
+  }, [refresh, navigate]);
 
   return (
     <div className="flex h-screen items-center justify-center bg-background text-foreground">

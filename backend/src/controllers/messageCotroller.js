@@ -18,6 +18,17 @@ export const sendDirectMessage = async (req, res) => {
       return res.status(400).json({ message: "Thiếu nội dung hoặc hình ảnh" });
     }
 
+    if (imgUrl) {
+      try {
+        const parsedUrl = new URL(imgUrl);
+        if (parsedUrl.protocol !== "https:" || parsedUrl.hostname !== "res.cloudinary.com") {
+          return res.status(400).json({ message: "Hình ảnh không hợp lệ" });
+        }
+      } catch (err) {
+        return res.status(400).json({ message: "Hình ảnh không hợp lệ" });
+      }
+    }
+
     if (conversationId) {
       conversation = await Conversation.findOne({
         _id: conversationId,
@@ -73,6 +84,17 @@ export const sendGroupMessage = async (req, res) => {
 
     if (!content && !imgUrl) {
       return res.status(400).json({ message: "Thiếu nội dung hoặc hình ảnh" });
+    }
+
+    if (imgUrl) {
+      try {
+        const parsedUrl = new URL(imgUrl);
+        if (parsedUrl.protocol !== "https:" || parsedUrl.hostname !== "res.cloudinary.com") {
+          return res.status(400).json({ message: "Hình ảnh không hợp lệ" });
+        }
+      } catch (err) {
+        return res.status(400).json({ message: "Hình ảnh không hợp lệ" });
+      }
     }
 
     const message = await Message.create({
