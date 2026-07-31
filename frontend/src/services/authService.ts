@@ -24,10 +24,16 @@ export const authService = {
       { withCredentials: true },
     );
 
+    if (res.data.refreshToken) {
+      localStorage.setItem("refreshToken", res.data.refreshToken);
+    }
+
     return res.data;
   },
   signOut: async () => {
-    return api.post("/auth/signout", { withCredentials: true });
+    const refreshToken = localStorage.getItem("refreshToken");
+    localStorage.removeItem("refreshToken");
+    return api.post("/auth/signout", { refreshToken }, { withCredentials: true });
   },
 
   fetchMe: async () => {
@@ -36,7 +42,12 @@ export const authService = {
   },
 
   refresh: async () => {
-    const res = await api.post("/auth/refresh", { withCredentials: true });
+    const refreshToken = localStorage.getItem("refreshToken");
+    const res = await api.post(
+      "/auth/refresh",
+      { refreshToken },
+      { withCredentials: true },
+    );
     return res.data.accessToken;
   },
 };

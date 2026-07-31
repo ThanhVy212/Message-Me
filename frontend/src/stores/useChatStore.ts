@@ -167,32 +167,31 @@ export const useChatStore = create<ChatState>()(
           const exists = state.conversations.some((c) =>
             isSameId(c._id, conversation._id),
           );
-          let newConversations = state.conversations;
-          if (!exists) {
-            const normalized = {
-              ...conversation,
-              participants: (conversation.participants ?? []).map(
-                normalizeParticipant,
-              ),
-            };
-            newConversations = [normalized, ...state.conversations];
-          } else {
-            newConversations = state.conversations.map((c) => {
-              if (!isSameId(c._id, conversation._id)) return c;
-              
-              // Only update participants if they're provided in the incoming data
-              const shouldUpdateParticipants = conversation.participants != null;
-              const normalizedParticipants = shouldUpdateParticipants
-                ? (conversation.participants ?? []).map(normalizeParticipant)
-                : c.participants;
-              
-              return {
-                ...c,
-                ...conversation,
-                participants: normalizedParticipants,
-              };
-            });
-          }
+          const newConversations = !exists
+            ? [
+                {
+                  ...conversation,
+                  participants: (conversation.participants ?? []).map(
+                    normalizeParticipant,
+                  ),
+                },
+                ...state.conversations,
+              ]
+            : state.conversations.map((c) => {
+                if (!isSameId(c._id, conversation._id)) return c;
+
+                // Only update participants if they're provided in the incoming data
+                const shouldUpdateParticipants = conversation.participants != null;
+                const normalizedParticipants = shouldUpdateParticipants
+                  ? (conversation.participants ?? []).map(normalizeParticipant)
+                  : c.participants;
+
+                return {
+                  ...c,
+                  ...conversation,
+                  participants: normalizedParticipants,
+                };
+              });
 
           const newGroupsList = state.groupsList.some((g) =>
             isSameId(g._id, conversation._id),

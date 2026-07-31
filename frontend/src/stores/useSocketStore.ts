@@ -109,9 +109,10 @@ export const useSocketStore = create<SocketState>((set, get) => ({
             if (c._id === convoId && c.lastMessage?._id === messageId) {
               return {
                 ...c,
-                lastMessage: lastMessage
+                lastMessage: lastMessage && c.lastMessage
                   ? {
                       ...c.lastMessage,
+                      _id: c.lastMessage._id,
                       content: "Tin nhắn đã được thu hồi",
                       isRecalled: true,
                     }

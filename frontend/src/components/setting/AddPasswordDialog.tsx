@@ -38,9 +38,12 @@ const AddPasswordDialog = ({ open, setOpen }: AddPasswordDialogProps) => {
 
   useEffect(() => {
     if (!open) {
-      setPassword("");
-      setConfirmPassword("");
-      setErrors({});
+      const timer = setTimeout(() => {
+        setPassword("");
+        setConfirmPassword("");
+        setErrors({});
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [open]);
 

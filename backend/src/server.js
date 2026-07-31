@@ -12,8 +12,10 @@ import cors from "cors";
 import passport from "./libs/passport.js";
 import { app, server } from "./socket/index.js";
 import { v2 as cloudinary } from "cloudinary";
+import dns from "node:dns";
 
 dotenv.config();
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const PORT = process.env.PORT;
 

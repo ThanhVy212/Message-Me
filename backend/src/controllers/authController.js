@@ -98,6 +98,7 @@ export const signIn = async (req, res) => {
     return res.status(200).json({
       message: `User ${user.displayName} đã login thành công`,
       accessToken,
+      refreshToken,
     });
   } catch (err) {
     console.error("Lỗi khi gọi signIn", err);
@@ -107,13 +108,13 @@ export const signIn = async (req, res) => {
 
 export const signOut = async (req, res) => {
   try {
-    const token = req.cookies?.refreshToken;
+    const token = req.body.refreshToken || req.cookies?.refreshToken;
 
     if (token) {
       await Session.deleteOne({ refreshToken: token });
-
-      res.clearCookie("refreshToken");
     }
+
+    res.clearCookie("refreshToken");
 
     return res.sendStatus(204);
   } catch (err) {
@@ -124,7 +125,7 @@ export const signOut = async (req, res) => {
 
 export const refreshToken = async (req, res) => {
   try {
-    const token = req.cookies?.refreshToken;
+    const token = req.body.refreshToken || req.cookies?.refreshToken;
     if (!token) {
       return res.status(401).json({ message: "Token không tồn tại" });
     }
@@ -177,7 +178,9 @@ export const callbackGoogle = async (req, res, next) => {
       maxAge: REFRESH_TOKEN_TTL,
     });
 
-    return res.redirect(process.env.CLIENT_URL);
+    return res.redirect(
+      `${process.env.CLIENT_URL}/auth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`
+    );
   } catch (err) {
     console.error("Lỗi khi gọi callbackGoogle", err);
     return res.status(500).json({ message: "Lỗi hệ thống" });

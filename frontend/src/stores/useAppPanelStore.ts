@@ -1,7 +1,7 @@
 import type { AppPanelState } from "@/types/store";
 import { create } from "zustand";
 
-export const useAppPanelStore = create<AppPanelState>((set, get) => ({
+export const useAppPanelStore = create<AppPanelState>((set) => ({
   activePanel: "chat",
   contactTab: "friends",
   contactSearch: "",
